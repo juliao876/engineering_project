@@ -30,10 +30,10 @@ class Services:
     def login_user(self, login_schema: LoginSchema, response: Response):
         login_data = login_schema.login
         user = None
-        if login_data.username:
-            user = self.db.query(Users).filter(Users.username == login_data.login).first()
-        elif login_data.email:
-            user = self.db.query(Users).filter(Users.email == login_data.login).first()
+        if "@" in login_data:
+            user = self.db.query(Users).filter(Users.email == login_data).first()
+        elif login_data:
+            user = self.db.query(Users).filter(Users.username == login_data).first()
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -47,4 +47,4 @@ class Services:
         token = create_jwt_token({"sub": str(user.id)})
         response.set_cookie(key="token", value=token, httponly=True, secure=True, samesite="Lax")
 
-        return user
+        return {"message": "Successfully logged in", "user": user.username}

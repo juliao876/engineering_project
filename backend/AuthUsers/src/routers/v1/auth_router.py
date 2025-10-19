@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Response
 from fastapi_utils.cbv import cbv
 from src.schemas.RegisterSchema import RegisterSchema
 from src.database.db_connection import get_db
+from src.schemas.RoleSchema import RoleSchema
 from src.services.Services import Services
 from sqlalchemy.orm import Session
 from src.schemas.LoginSchema import LoginSchema
@@ -26,3 +27,7 @@ class Auth:
         auth_service = Services(db)
         response.delete_cookie(key="token", httponly=True, secure=True, samesite="Lax")
         return auth_service, {"message": "Successfully logged out"}
+    @auth_router.post("/role")
+    def role(self, role: RoleSchema, db: Session = Depends(get_db)):
+        auth_service = Services(db)
+        return auth_service
