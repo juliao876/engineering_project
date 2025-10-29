@@ -1,10 +1,12 @@
 from fastapi import HTTPException, Response
+from pip._internal.network.auth import Credentials
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from starlette import status
 
 from src.schemas.LoginSchema import LoginSchema
 from src.schemas.RegisterSchema import RegisterSchema
+from src.schemas.CredentialsSchema import CredentialsSchema
 from src.database.models.Users import Users
 from src.security.JWT import create_jwt_token
 from src.security.PasswordHash import password_verify, hash_password
@@ -53,4 +55,24 @@ class Services:
         user = self.db.query(Users).filter(Users.id == user_id).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        return user
+        credentials = CredentialsSchema(username=user.username, email=user.email, name=user.name, family_name=user.family_name, role=user.role)
+        return credentials
+
+    def update_user(self, payload):
+        user_id = payload["sub"]
+        user = self.db.query(Users).filter(Users.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        if "name" in payload:
+            user.name = payload["name"]
+        if "family_name" in payload:
+            user.family_name = payload["family_name"]
+        if "password" in payload:
+            user.set_password(payload["password"])
+        self.db.commit()
+        self.db.refresh(user)
+        return user, {"message": "Profile updated successfully"}
+
+
+
+
