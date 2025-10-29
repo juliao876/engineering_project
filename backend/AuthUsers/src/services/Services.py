@@ -48,3 +48,9 @@ class Services:
         response.set_cookie(key="token", value=token, httponly=True, secure=True, samesite="Lax")
 
         return {"message": "Successfully logged in", "user": user.username}
+
+    def get_user_by_id(self, user_id: int):
+        user = self.db.query(Users).filter(Users.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return user

@@ -1,4 +1,4 @@
-from jwt import encode
+from jwt import encode, decode, exceptions
 from datetime import datetime, timedelta
 
 SECRET_KEY = "secretkey"
@@ -11,3 +11,12 @@ def create_jwt_token(data: dict):
     to_encode.update({"exp": expires})
     encode_jwt = encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encode_jwt
+
+def verify_jwt_token(token: str):
+    try:
+        payload = decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except exceptions.ExpiredSignatureError:
+        raise Exception("Token has expired")
+    except exceptions.DecodeError:
+        raise Exception("Invalid token")

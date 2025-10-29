@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Response, Request, HTTPException
 from fastapi_utils.cbv import cbv
 from src.schemas.RegisterSchema import RegisterSchema
 from src.database.db_connection import get_db
@@ -6,6 +6,8 @@ from src.schemas.RoleSchema import RoleSchema
 from src.services.Services import Services
 from sqlalchemy.orm import Session
 from src.schemas.LoginSchema import LoginSchema
+from src.security.JWT import verify_jwt_token
+
 
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -31,3 +33,15 @@ class Auth:
     def role(self, role: RoleSchema, db: Session = Depends(get_db)):
         auth_service = Services(db)
         return auth_service
+    @auth_router.get("/me")
+    def me(self, request: Request, db: Session = Depends(get_db)):
+        token = request.cookies.get("token")
+        if not token:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        payload = verify_jwt_token(token)
+        user_id = payload.get("sub")
+        auth_service = Services(db)
+        user_data = auth_service.get_user_by_id(user_id)
+        return user_data
+
+
