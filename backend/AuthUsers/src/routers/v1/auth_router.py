@@ -10,6 +10,7 @@ from src.services.Services import Services
 from sqlalchemy.orm import Session
 from src.schemas.LoginSchema import LoginSchema
 from src.security.JWT import verify_jwt_token
+from src.schemas.UpdateSchema import UpdateSchema
 
 
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -47,13 +48,13 @@ class Auth:
         user_data = auth_service.get_user_by_id(user_id)
         return user_data
     @auth_router.patch("/me")
-    def update_me(self, request: Request,db: Session = Depends(get_db)):
+    def update_me(self, request: Request, update_input: UpdateSchema, db: Session = Depends(get_db)):
         token = request.cookies.get("token")
         if not token:
             raise HTTPException(status_code=401, detail="Not authenticated")
         payload = verify_jwt_token(token)
         auth_service = Services(db)
-        return auth_service.update_user(payload)
+        return auth_service.update_user(payload,update_input)
 
 
 
