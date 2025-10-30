@@ -11,6 +11,7 @@ from src.schemas.UpdateSchema import UpdateSchema
 from src.database.models.Users import Users
 from src.security.JWT import create_jwt_token
 from src.security.PasswordHash import password_verify, hash_password
+from src.schemas.RoleSchema import RoleSchema
 
 
 class Services:
@@ -77,6 +78,20 @@ class Services:
         self.db.commit()
         self.db.refresh(user)
         return user, {"message": "Profile updated successfully"}
+
+    def update_user_role(self, user_id: int, role_data: RoleSchema):
+        user = self.db.query(Users).filter(Users.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        user.role = role_data.role
+        self.db.commit()
+        self.db.refresh(user)
+
+        return {"username": user.username, "new_role": user.role, "message": "Role updated successfully"}
+
+
+
 
 
 

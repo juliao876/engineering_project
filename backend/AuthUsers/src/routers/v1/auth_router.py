@@ -13,6 +13,7 @@ from src.security.JWT import verify_jwt_token
 from src.schemas.UpdateSchema import UpdateSchema
 
 
+
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @cbv(auth_router)
@@ -34,9 +35,14 @@ class Auth:
         response.delete_cookie(key="token", httponly=True, secure=True, samesite="Lax")
         return auth_service, {"message": "Successfully logged out"}
     @auth_router.post("/role")
-    def role(self, role: RoleSchema, db: Session = Depends(get_db)):
+    def role(self,request: Request, role_data: RoleSchema, db: Session = Depends(get_db)):
+        token = request.cookies.get("token")
+        if not token:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        payload = verify_jwt_token(token)
+        user_id = payload.get("sub")
         auth_service = Services(db)
-        return auth_service
+        return auth_service.update_user_role(user_id, role_data)
     @auth_router.get("/me")
     def me(self, request: Request, db: Session = Depends(get_db)):
         token = request.cookies.get("token")
