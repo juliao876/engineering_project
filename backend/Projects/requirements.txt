@@ -1,0 +1,7 @@
+uvicorn==0.37.0
+fastapi==0.118.0
+sqlalchemy==2.0.43
+sqlmodel==0.0.25
+fastapi_utils==0.8.0
+typing_inspect==0.9.0
+argon2-cffi==25.1.0
