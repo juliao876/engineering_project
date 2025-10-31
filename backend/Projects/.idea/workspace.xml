@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="new &#10;service">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routers/api_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/routers/api_router.py" afterDir="false" />
-    </list>
+    <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="new &#10;service" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -195,7 +192,15 @@
       <option name="project" value="LOCAL" />
       <updated>1761904288222</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="new &#10;service">
+      <option name="closed" value="true" />
+      <created>1761905975756</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1761905975756</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
