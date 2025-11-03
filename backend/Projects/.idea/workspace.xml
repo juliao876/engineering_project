@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="new &#10;service" />
+    <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="new &#10;service">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -55,6 +57,15 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/src" />
+      <recent name="$PROJECT_DIR$/src/services" />
+      <recent name="$PROJECT_DIR$/src/security" />
+      <recent name="$PROJECT_DIR$/src/schemas" />
+    </key>
+  </component>
   <component name="RunManager" selected="Python.Uvicorn">
     <configuration name="Uvicorn" type="PythonConfigurationType" factoryName="Python">
       <module name="AuthUsers" />
