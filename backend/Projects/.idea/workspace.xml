@@ -4,8 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="new &#10;service">
+    <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="structure">
+      <change afterPath="$PROJECT_DIR$/src/routers/v1/project_router.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/models/Project.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/models/Project.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routers/v1/projects_router.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routers/v1/v1_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/routers/v1/v1_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schemas/ProjectSchema.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/ProjectSchema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/Services.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -211,7 +217,15 @@
       <option name="project" value="LOCAL" />
       <updated>1761905975756</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="structure">
+      <option name="closed" value="true" />
+      <created>1762189399486</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1762189399486</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -225,6 +239,7 @@
     <MESSAGE value="update user" />
     <MESSAGE value="role update" />
     <MESSAGE value="new &#10;service" />
-    <option name="LAST_COMMIT_MESSAGE" value="new &#10;service" />
+    <MESSAGE value="structure" />
+    <option name="LAST_COMMIT_MESSAGE" value="structure" />
   </component>
 </project>
