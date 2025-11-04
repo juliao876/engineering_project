@@ -13,7 +13,7 @@ class Services:
     def __init__(self, db: Session):
         self.db = db
 
-    def create_project(self, project: ProjectSchema, user_id=None):
+    def create_project(self, project: ProjectSchema, user_id = int):
         new_project = Projects(
             title=project.title,
             description=project.description,
@@ -26,3 +26,13 @@ class Services:
         self.db.commit()
         self.db.refresh(new_project)
         return new_project
+
+    def delete_project(self, project_id: int, user_id: int):
+        project = self.db.get(Projects, project_id)
+        if not project:
+            return False
+        if project.user_id != user_id:
+            return False
+        self.db.delete(project)
+        self.db.commit()
+        return True

@@ -8,6 +8,9 @@ class ProjectSchema(BaseModel):
     figma_link: Optional[str]
     is_public: Optional[bool]
 
+    class Config:
+        orm_mode = True
+
 class ResponseModel(ProjectSchema):
     project_id: int
     user_id: int
