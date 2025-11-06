@@ -4,17 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="create and delete project">
+    <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="get projects (user/public)">
+      <change afterPath="$PROJECT_DIR$/src/schemas/UpdateProjectSchema.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../AuthUsers/database.db" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/database.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AuthUsers/src/database/models/Users.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/src/database/models/Users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AuthUsers/src/routers/v1/auth_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/src/routers/v1/auth_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AuthUsers/src/schemas/CredentialsSchema.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/src/schemas/CredentialsSchema.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AuthUsers/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/src/services/Services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database.db" beforeDir="false" afterPath="$PROJECT_DIR$/database.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/database/models/Project.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/models/Project.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/routers/v1/project_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/routers/v1/project_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/schemas/ProjectSchema.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/ProjectSchema.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/security/auth_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/security/auth_utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/Services.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -269,7 +263,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762294510355</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="get projects (user/public)">
+      <option name="closed" value="true" />
+      <created>1762438414136</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1762438414136</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -286,6 +288,7 @@
     <MESSAGE value="structure" />
     <MESSAGE value="create project but it needs to be fixed" />
     <MESSAGE value="create and delete project" />
-    <option name="LAST_COMMIT_MESSAGE" value="create and delete project" />
+    <MESSAGE value="get projects (user/public)" />
+    <option name="LAST_COMMIT_MESSAGE" value="get projects (user/public)" />
   </component>
 </project>

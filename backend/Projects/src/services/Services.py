@@ -8,6 +8,7 @@ from src.database.models.Project import Project
 from src.schemas.ProjectSchema import ProjectSchema
 from src.security.auth_utils import get_user_data_username
 from src.security.auth_utils import get_user_data
+from src.schemas.UpdateProjectSchema import ProjectUpdateSchema
 
 class Services:
     def __init__(self, db: Session):
@@ -45,3 +46,18 @@ class Services:
             Project.is_public == True
         ).all()
         return public_projects
+
+    def update_project(self, project_id: int, user_id: int, update_data: ProjectSchema):
+        project = self.db.get(Project, project_id)
+
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        if project.user_id != user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to edit this project")
+        update_fields = update_data.dict(exclude_unset=True)
+        for key, value in update_data.dict().items():
+            setattr(project, key, value)
+
+        self.db.commit()
+        self.db.refresh(project)
+        return project

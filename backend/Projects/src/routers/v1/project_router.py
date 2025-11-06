@@ -8,6 +8,7 @@ from src.database.models.Project import Project as ProjectModel
 from src.services.Services import Services
 from src.security.auth_utils import get_user_data
 from src.security.auth_utils import get_user_data_username
+from src.schemas.UpdateProjectSchema import ProjectUpdateSchema
 
 project_router = APIRouter(prefix="/project", tags=["Projects"])
 
@@ -75,3 +76,23 @@ class Projects():
         service = Services(db)
         public_projects = service.public_project(username)
         return {"projects": [p.title for p in public_projects]}
+    @project_router.post("/update_project/{project_id}")
+    def update_project(self, project_id: int, update_data: ProjectUpdateSchema, request: Request,  db: Session = Depends(get_db)):
+        token = request.cookies.get("token")
+        if not token:
+            raise HTTPException(status_code=401, detail="Not authenticated")
+        user_data = get_user_data(token)
+        user_id = user_data.get("user_id")
+        service = Services(db)
+        updated = service.update_project(project_id, user_id, update_data)
+        return {
+            "message": "Project updated successfully",
+            "project": {
+                "id": updated.project_id,
+                "title": updated.title,
+                "description": updated.description,
+                "is_public": updated.is_public,
+                "figma_link": updated.figma_link,
+                "contents": updated.contents
+            }
+        }
