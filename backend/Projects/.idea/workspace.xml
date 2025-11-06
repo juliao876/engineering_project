@@ -4,11 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/security/auth_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="create and delete project">
+      <change beforePath="$PROJECT_DIR$/../AuthUsers/database.db" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/database.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthUsers/src/database/models/Users.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/src/database/models/Users.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthUsers/src/routers/v1/auth_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/src/routers/v1/auth_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthUsers/src/schemas/CredentialsSchema.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/src/schemas/CredentialsSchema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthUsers/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/src/services/Services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database.db" beforeDir="false" afterPath="$PROJECT_DIR$/database.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/models/Project.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/models/Project.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/routers/v1/project_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/routers/v1/project_router.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/schemas/ProjectSchema.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/ProjectSchema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/security/auth_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/security/auth_utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/Services.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -47,20 +53,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.Uvicorn.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/juliaaa/Desktop/inzynierka/engineering_project/backend/Projects&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.Projects.executor": "Run",
+    "Python.Uvicorn.executor": "Run",
+    "Python.main.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/Users/juliaaa/Desktop/inzynierka/engineering_project/backend/Projects",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -70,8 +77,8 @@
       <recent name="$PROJECT_DIR$/src/schemas" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.Uvicorn">
-    <configuration name="Uvicorn" type="PythonConfigurationType" factoryName="Python">
+  <component name="RunManager" selected="Python.Projects">
+    <configuration name="Auth" type="PythonConfigurationType" factoryName="Python">
       <module name="AuthUsers" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -86,6 +93,28 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="uvicorn" />
       <option name="PARAMETERS" value="src.server:create_app --reload --port 6700" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="true" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Projects" type="PythonConfigurationType" factoryName="Python">
+      <module name="AuthUsers" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="uvicorn" />
+      <option name="PARAMETERS" value="src.server:create_app --reload --port 6701" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="true" />
@@ -116,7 +145,8 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.Uvicorn" />
+      <item itemvalue="Python.Auth" />
+      <item itemvalue="Python.Projects" />
       <item itemvalue="Python.main" />
     </list>
   </component>
@@ -231,7 +261,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762196299418</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="create and delete project">
+      <option name="closed" value="true" />
+      <created>1762294510355</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1762294510355</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -247,6 +285,7 @@
     <MESSAGE value="new &#10;service" />
     <MESSAGE value="structure" />
     <MESSAGE value="create project but it needs to be fixed" />
-    <option name="LAST_COMMIT_MESSAGE" value="create project but it needs to be fixed" />
+    <MESSAGE value="create and delete project" />
+    <option name="LAST_COMMIT_MESSAGE" value="create and delete project" />
   </component>
 </project>
