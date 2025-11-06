@@ -43,11 +43,19 @@ class Auth:
         user_id = payload.get("sub")
         auth_service = Services(db)
         return auth_service.update_user_role(user_id, role_data)
+
     @auth_router.get("/me")
     def me(self, request: Request, db: Session = Depends(get_db)):
         token = request.cookies.get("token")
+
+        if not token:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                token = auth_header.split(" ")[1]
+
         if not token:
             raise HTTPException(status_code=401, detail="Invalid token")
+
         payload = verify_jwt_token(token)
         user_id = payload.get("sub")
         auth_service = Services(db)
@@ -61,6 +69,38 @@ class Auth:
         payload = verify_jwt_token(token)
         auth_service = Services(db)
         return auth_service.update_user(payload,update_input)
+
+    @auth_router.get("/projects")
+    def get_my_projects(self, request: Request, db: Session = Depends(get_db)):
+
+        token = request.cookies.get("token")
+
+        if not token:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                token = auth_header.split(" ")[1]
+
+        if not token:
+            raise HTTPException(status_code=401, detail="Token not provided")
+
+        try:
+            payload = verify_jwt_token(token)
+            user_id = int(payload["sub"])
+        except Exception as e:
+            raise HTTPException(status_code=401, detail=f"Invalid token: {e}")
+
+        service = Services(db)
+        titles = service.get_user_projects_tittle(user_id)
+        return {"projects": titles}
+
+    @auth_router.get("/user/{username}")
+    def get_user_by_username(self, username: str, db: Session = Depends(get_db)):
+        auth_service = Services(db)
+        user = auth_service.get_user_by_username(username)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return {"user_id": user.id, "username": user.username, "email": user.email}
+
 
 
 

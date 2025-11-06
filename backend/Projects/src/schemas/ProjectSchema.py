@@ -9,7 +9,7 @@ class ProjectSchema(BaseModel):
     is_public: Optional[bool]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ResponseModel(ProjectSchema):
     project_id: int

@@ -1,9 +1,9 @@
 from fastapi import HTTPException, Response
+
 from pip._internal.network.auth import Credentials
 from sqlalchemy.orm import Session
 from sqlalchemy import select, update
 from starlette import status
-
 from src.schemas.LoginSchema import LoginSchema
 from src.schemas.RegisterSchema import RegisterSchema
 from src.schemas.CredentialsSchema import CredentialsSchema
@@ -49,7 +49,7 @@ class Services:
                 detail="Insufficient credentials",
             )
         token = create_jwt_token({"sub": str(user.id)})
-        response.set_cookie(key="token", value=token, httponly=True, secure=True, samesite="Lax")
+        response.set_cookie(key="token", value=token, httponly=True)
 
         return {"message": "Successfully logged in", "user": user.username}
 
@@ -57,7 +57,7 @@ class Services:
         user = self.db.query(Users).filter(Users.id == user_id).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        credentials = CredentialsSchema(username=user.username, email=user.email, name=user.name, family_name=user.family_name, role=user.role)
+        credentials = CredentialsSchema(user_id=user.id, username=user.username, email=user.email, name=user.name, family_name=user.family_name, role=user.role)
         return credentials
 
     def update_user(self, payload, update_input: UpdateSchema):
@@ -89,6 +89,33 @@ class Services:
         self.db.refresh(user)
 
         return {"username": user.username, "new_role": user.role, "message": "Role updated successfully"}
+
+    def get_user_projects_tittle(self, user_id: int, httpx=None):
+        user = self.db.query(Users).filter(Users.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        try:
+            with httpx.AsyncClient() as client:
+                response = client.post(
+                    "http://127.0.0.1:6701/projects/titles",
+                    json=user.projects,
+                    headers={"Content-Type": "application/json"}
+                )
+            if response.status_code == 200:
+                return response.json()
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Insufficient credentials",
+                )
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error connecting to Projects service: {e}")
+
+    def get_user_by_username(self, username: str):
+        user = self.db.query(Users).filter(Users.username == username).first()
+        return user
+
+
 
 
 

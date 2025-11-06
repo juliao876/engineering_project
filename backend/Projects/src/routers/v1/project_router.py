@@ -4,29 +4,29 @@ from sqlalchemy.sql.coercions import expect
 from src.database.db_connection import get_db
 from sqlalchemy.orm import Session
 from src.schemas.ProjectSchema import ProjectSchema
-from src.database.models import Project
+from src.database.models.Project import Project as ProjectModel
 from src.services.Services import Services
 from src.security.auth_utils import get_user_data
+from src.security.auth_utils import get_user_data_username
 
 project_router = APIRouter(prefix="/project", tags=["Projects"])
 
 @cbv(project_router)
 class Projects():
     @project_router.post("/create_project")
-    def create_project(self, request: Request,  project: ProjectSchema, session: Session = Depends(get_db)):
+    def create_project(self, request: Request,  project: ProjectSchema, db: Session = Depends(get_db)):
         token = request.cookies.get("token")
         if not token:
             raise HTTPException(status_code=401, detail="Not authenticated")
         user_data = get_user_data(token)
-        user_id = user_data.get("id")
+        user_id = user_data.get("user_id")
 
         if not user_id:
             raise HTTPException(status_code=401, detail="Not authenticated")
 
-        service = Services(user_id)
+        service = Services(db)
         new_project = service.create_project(project, user_id)
 
-        service = Services(self.db)
         return {
             "message": "Project created successfully",
             "project": {
@@ -37,18 +37,41 @@ class Projects():
             }
         }
     @project_router.delete("/delete_project/{project_id}")
-    def delete_project(self, project_id: int, request: Request):
-        token = request.cookies.get("token") or request.headers.get("Authorization")
+    def delete_project(self, project_id: int, request: Request, db: Session = Depends(get_db)):
+        token = request.cookies.get("token")
         if not token:
             raise HTTPException(status_code=401, detail="Not authenticated")
-        if token.startswith("Bearer "):
-            token = token.split(" ")[1]
-
         user_data = get_user_data(token)
-        user_id = user_data.get("id")
+        user_id = user_data.get("user_id")
 
-        service = Services(self.db)
+        service = Services(db)
         deleted = service.delete_project(project_id, user_id)
         if not deleted:
             raise HTTPException(status_code=404, detail="Project not found or not yours")
         return {"message": "Project deleted successfully"}
+
+    @project_router.get("/get_projects")
+    def get_projects(self, request: Request, db: Session = Depends(get_db)):
+        token = request.cookies.get("token")
+        if not token:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                token = auth_header.split(" ")[1]
+
+        if not token:
+            raise HTTPException(status_code=401, detail="Token not provided")
+
+        user_data = get_user_data(token)
+        print("USER DATA FROM AUTH:", user_data)
+        user_id = user_data.get("user_id") or user_data.get("id")
+
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Could not determine user ID")
+
+        projects = db.query(ProjectModel).filter(ProjectModel.user_id == user_id).all()
+        return {"projects": [p.title for p in projects]}
+    @project_router.get("/public/{username}")
+    def get_public_project(self, username: str, db: Session = Depends(get_db)):
+        service = Services(db)
+        public_projects = service.public_project(username)
+        return {"projects": [p.title for p in public_projects]}
