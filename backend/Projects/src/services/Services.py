@@ -8,7 +8,6 @@ from src.database.models.Project import Project
 from src.schemas.ProjectSchema import ProjectSchema
 from src.security.auth_utils import get_user_data_username
 from src.security.auth_utils import get_user_data
-from src.schemas.UpdateProjectSchema import ProjectUpdateSchema
 
 class Services:
     def __init__(self, db: Session):
@@ -55,7 +54,11 @@ class Services:
         if project.user_id != user_id:
             raise HTTPException(status_code=403, detail="Not authorized to edit this project")
         update_fields = update_data.dict(exclude_unset=True)
-        for key, value in update_data.dict().items():
+        update_fields = {
+            k: v for k, v in update_fields.items()
+            if v not in [None, "string", ""]
+        }
+        for key, value in update_fields.items():
             setattr(project, key, value)
 
         self.db.commit()

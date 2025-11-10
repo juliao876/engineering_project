@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="get projects (user/public)">
-      <change afterPath="$PROJECT_DIR$/src/schemas/UpdateProjectSchema.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AuthUsers/database.db" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/database.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database.db" beforeDir="false" afterPath="$PROJECT_DIR$/database.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routers/v1/project_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/routers/v1/project_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/Services.py" afterDir="false" />
+    <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="update project">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,21 +43,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.Projects.executor": "Run",
-    "Python.Uvicorn.executor": "Run",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/juliaaa/Desktop/inzynierka/engineering_project/backend/Projects",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.Projects.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Uvicorn.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/juliaaa/Desktop/inzynierka/engineering_project/backend/Projects&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -271,7 +267,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762438414136</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="update project">
+      <option name="closed" value="true" />
+      <created>1762467869103</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1762467869103</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -289,6 +293,7 @@
     <MESSAGE value="create project but it needs to be fixed" />
     <MESSAGE value="create and delete project" />
     <MESSAGE value="get projects (user/public)" />
-    <option name="LAST_COMMIT_MESSAGE" value="get projects (user/public)" />
+    <MESSAGE value="update project" />
+    <option name="LAST_COMMIT_MESSAGE" value="update project" />
   </component>
 </project>

@@ -76,7 +76,7 @@ class Projects():
         service = Services(db)
         public_projects = service.public_project(username)
         return {"projects": [p.title for p in public_projects]}
-    @project_router.post("/update_project/{project_id}")
+    @project_router.patch("/update_project/{project_id}")
     def update_project(self, project_id: int, update_data: ProjectUpdateSchema, request: Request,  db: Session = Depends(get_db)):
         token = request.cookies.get("token")
         if not token:
