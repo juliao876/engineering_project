@@ -5,7 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="update project">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../FigmaIntegration/src/schemas/FigmaImportSchema.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../FigmaIntegration/src/schemas/FigmaProjectSchema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FigmaIntegration/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../FigmaIntegration/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FigmaIntegration/src/database/models/FigmaFile.py" beforeDir="false" afterPath="$PROJECT_DIR$/../FigmaIntegration/src/database/models/FigmaFile.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FigmaIntegration/src/routers/v1/figma_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/../FigmaIntegration/src/routers/v1/figma_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FigmaIntegration/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/../FigmaIntegration/src/services/Services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/models/Project.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/models/Project.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routers/v1/project_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/routers/v1/project_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schemas/ProjectSchema.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/ProjectSchema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schemas/UpdateProjectSchema.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/UpdateProjectSchema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/Services.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
