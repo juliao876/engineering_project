@@ -11,4 +11,5 @@ class Project(SQLModel, table=True):
     user_id: int = Field(nullable=False)
     contents: Optional[str] = Field(default=None, nullable=True)
     figma_link: Optional[str] = Field(default=None)
+    content_type: Optional[str] = Field(default=None, nullable=True)
 

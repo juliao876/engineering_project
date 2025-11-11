@@ -35,6 +35,7 @@ class Projects():
                 "title": new_project.title,
                 "user_id": new_project.user_id,
                 "is_public": new_project.is_public,
+                "content_type": new_project.content_type,
             }
         }
     @project_router.delete("/delete_project/{project_id}")

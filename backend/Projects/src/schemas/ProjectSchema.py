@@ -7,6 +7,7 @@ class ProjectSchema(BaseModel):
     contents: Optional[str]
     figma_link: Optional[str]
     is_public: Optional[bool]
+    content_type: Optional[str]
 
     class Config:
         from_attributes = True

@@ -7,3 +7,4 @@ class ProjectUpdateSchema(BaseModel):
     figma_link: Optional[str] = None
     contents: Optional[str] = None
     is_public: Optional[bool] = None
+    content_type: Optional[str] = None

@@ -1,24 +1,47 @@
-from fastapi import HTTPException, Response
+from fastapi import HTTPException, Response, requests
 from pip._internal.network.auth import Credentials
 from sqlalchemy.orm import Session
 from sqlalchemy import select, update
+from sqlalchemy.sql.coercions import expect
 from sqlalchemy.testing.pickleable import User
 from starlette import status
 from src.database.models.Project import Project
+from src.schemas.UpdateProjectSchema import ProjectUpdateSchema
 from src.schemas.ProjectSchema import ProjectSchema
 from src.security.auth_utils import get_user_data_username
 from src.security.auth_utils import get_user_data
+import os
+
+
+FIGMA_SERVICE_URL = "http://127.0.0.1:6702/api/v1"
 
 class Services:
     def __init__(self, db: Session):
         self.db = db
 
     def create_project(self, project: ProjectSchema, user_id = int):
+        figma_link =  project.figma_link
+        if project.content_type == "figma" and figma_link:
+            try:
+                response = requests.post(
+                f"{FIGMA_SERVICE_URL}/projects",
+                    json={"file_url": figma_link},
+                    headers={"Authorization": f"Bearer"},
+                    timeout = 8
+                )
+                if response.status_code != 200:
+                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Figma import failed")
+                else:
+                    print("Figma import success")
+            except Exception as e:
+                    print(f"[!] Error contacting Figma service: {e}")
+
         new_project = Project(
             title=project.title,
             description=project.description,
             figma_link=project.figma_link,
             contents=project.contents,
+            content_type=project.content_type,
             is_public=project.is_public,
             user_id=user_id
         )
@@ -46,7 +69,7 @@ class Services:
         ).all()
         return public_projects
 
-    def update_project(self, project_id: int, user_id: int, update_data: ProjectSchema):
+    def update_project(self, project_id: int, user_id: int, update_data: ProjectUpdateSchema):
         project = self.db.get(Project, project_id)
 
         if not project:
@@ -64,3 +87,13 @@ class Services:
         self.db.commit()
         self.db.refresh(project)
         return project
+
+    # def guess_content_type(filename: str) -> str:
+    #     ext = os.path.splitext(filename)[1].lower()
+    #     if ext in [".png", ".jpg", ".jpeg", ".gif"]:
+    #         return "image"
+    #     elif ext in [".mp4", ".mov", ".avi"]:
+    #         return "video"
+    #     elif ext in [".fig"]:
+    #         return "figma"
+    #     return "unknown"
