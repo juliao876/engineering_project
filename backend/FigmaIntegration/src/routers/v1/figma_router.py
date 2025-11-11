@@ -55,3 +55,10 @@ class Fig:
             "figma_link": figma_url,
             "project": project_data
         }
+    @figma_router.get("/{project_id}/data")
+    def get_figma_project_data(self, project_id: int, db: Session = Depends(get_db)):
+        service = Services(db)
+        data = service.fetch_figma_data(project_id)
+        if not data:
+            raise HTTPException(status_code=404, detail="Figma not found")
+        return data

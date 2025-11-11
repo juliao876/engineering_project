@@ -69,4 +69,49 @@ class Services:
         except Exception as e:
             print(f"[!] Error contacting Projects service: {e}")
 
+    def fetch_figma_data(self, project_id:int):
+        file = self.db.get(FigmaFile, project_id)
+        if not file:
+            raise HTTPException(status_code=404, detail="Figma file not found")
+
+        data = response.json()
+
+        name = data["name"]
+        last_modified = data.get("lastModified")
+        thumbnail_url = data.get("thumbnailUrl")
+        document=data.get("document", {})
+        total_layers = 0
+        total_texts = 0
+        total_buttons = 0
+
+        def traverse(node):
+            nonlocal total_layers, total_texts, total_buttons
+            total_layers += 1
+            if node.get("type") == "TEXT":
+                total_texts += 1
+            if "button" in node.get("name", "").lower():
+                total_buttons += 1
+            for child in node.get("children", []):
+                traverse(child)
+
+        traverse(document)
+        file.name = name
+        file.thumbnail_url = thumbnail_url
+        file.last_modified = datetime.fromtimestamp(last_modified)
+        file.updated_at = datetime.utcnow()
+        self.db.commit()
+
+        return{
+            "project_id": file.id,
+            "file_key": file.file_key,
+            "name": name,
+            "last_modified": file.last_modified,
+            "thumbnail_url": file.thumbnail_url,
+            "total_layers": total_layers,
+            "total_texts": total_texts,
+            "total_buttons": total_buttons,
+        }
+
+
+
 
