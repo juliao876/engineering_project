@@ -1,0 +1,65 @@
+services:
+  auth-service:
+    build: ./backend/AuthUsers
+    depends_on:
+      - auth-db
+    ports:
+      - "6700:6700"
+    env_file:
+      - ./backend/AuthUsers/.env
+
+  auth-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: auth_db
+    ports:
+      - "2222:5432"
+    volumes:
+      - auth_pgdata:/var/lib/postgresql/data
+
+  project-service:
+    build: ./backend/Projects
+    depends_on:
+      - projects-db
+    ports:
+      - "6701:6701"
+    env_file:
+      - ./backend/Projects/.env
+
+  projects-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: projects_db
+    ports:
+      - "2223:5432"
+    volumes:
+      - projects_pgdata:/var/lib/postgresql/data
+
+  figma-service:
+    build: ./backend/FigmaIntegration
+    depends_on:
+      - figma-db
+    ports:
+      - "6702:6702"
+    env_file:
+      - ./backend/FigmaIntegration/.env
+
+  figma-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: figma_db
+    ports:
+      - "2224:5432"
+    volumes:
+      - figma_pgdata:/var/lib/postgresql/data
+volumes:
+  auth_pgdata:
+  projects_pgdata:
+  figma_pgdata:
+  #tu dopisywac volumy
