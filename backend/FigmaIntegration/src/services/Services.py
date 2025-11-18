@@ -1,3 +1,6 @@
+from pyexpat.errors import messages
+from urllib import response
+
 from fastapi import HTTPException, Response
 from sqlalchemy.orm import Session
 from src.database.models.FigmaFile import FigmaFile
@@ -6,7 +9,7 @@ from datetime import datetime, timedelta
 from src.schemas.FigmaProjectSchema import FigmaProjectSchema
 import re
 
-PROJECTS_SERVICE_URL = "http://127.0.0.1:6701/api/v1"
+PROJECTS_SERVICE_URL = ("PROJECTS_SERVICE_URL","http://localhost:6701/api/v1")
 
 class Services:
     def __init__(self, db: Session):
@@ -111,6 +114,45 @@ class Services:
             "total_texts": total_texts,
             "total_buttons": total_buttons,
         }
+    def sync_figma_project(self, project_id: int):
+        figma_file = self.db.get(FigmaFile, project_id)
+        if not figma_file:
+            raise HTTPException(status_code=404, detail="Figma file not found")
+        url = f"https://api.figma.com/v1/files/{figma_file.file_key}"
+        headers = {"Authorization": f"Bearer {figma_file.access_token}"}
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            raise HTTPException(status_code=404, detail="Failed to fetch Figma file data")
+        data = response.json()
+        new_name = data.get["name"]
+        new_last_modified = data.get["last_modified"]
+        new_thumbnail = data.get["thumbnail_url"]
+
+        changes = {}
+        if new_name != figma_file.name:
+            changes["name"] = {"old": figma_file.name, "new": new_name}
+        if new_thumbnail != figma_file.thumbnail_url:
+            changes["thumbnail"] = {"old": figma_file.thumbnail_url, "new": new_thumbnail}
+        if new_last_modified and new_last_modified != figma_file.last_modified.isoformat():
+            changes["last_modified"] = {"old": figma_file.last_modified.isoformat(), "new": new_last_modified}
+
+        figma_file.name = new_name
+        figma_file.thumbnail_url = new_thumbnail
+        figma_file.last_modified = datetime.fromisoformat(new_last_modified.replace("Z", "+00:00"))
+        figma_file.updated_at = datetime.utcnow()
+
+        self.db.commit()
+        self.db.refresh(figma_file)
+        return {
+            "message": "Project synced sucessfully",
+            "project_id": figma_file.id,
+            "file_key": figma_file.file_key,
+            "changes": changes or "No changes",
+            "last_sync": figma_file.updated_at.isoformat()
+        }
+
+
+
 
 
 

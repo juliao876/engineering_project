@@ -13,7 +13,7 @@ from src.security.auth_utils import get_user_data
 import os
 
 
-FIGMA_SERVICE_URL = "http://127.0.0.1:6702/api/v1"
+FIGMA_SERVICE_URL = os.getenv("FIGMA_SERVICE_URL", "http://localhost:6702/api/v1")
 
 class Services:
     def __init__(self, db: Session):

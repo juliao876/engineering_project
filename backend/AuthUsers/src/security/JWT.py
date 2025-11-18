@@ -1,7 +1,8 @@
 from jwt import encode, decode, exceptions
 from datetime import datetime, timedelta
+import os
 
-SECRET_KEY = "secretkey"
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 15
 

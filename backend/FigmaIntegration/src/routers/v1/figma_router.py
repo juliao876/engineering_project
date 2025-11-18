@@ -8,7 +8,7 @@ from src.schemas.FigmaImportSchema import FigmaImportSchema
 from src.security.auth_utils import get_user_data
 from src.services.Services import Services
 
-figma_router = APIRouter(prefix="/figma", tags=["Figma_Files"])
+figma_router = APIRouter(prefix="/figma", tags=["Figma Integration"])
 
 @cbv(figma_router)
 class Fig:
@@ -62,3 +62,8 @@ class Fig:
         if not data:
             raise HTTPException(status_code=404, detail="Figma not found")
         return data
+    @figma_router.get("/sync/{project_id}")
+    def sync_project(self, project_id: int, db: Session = Depends(get_db)):
+        service = Services(db)
+        result = service.sync_figma_project(project_id)
+        return result

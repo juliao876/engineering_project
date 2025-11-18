@@ -1,9 +1,10 @@
+import os
 import json
 from urllib.request import Request, urlopen
 from urllib.error import URLError
 from fastapi import HTTPException, status
 
-AUTH_SERVICE_URL = "http://127.0.0.1:6700"  # ← zmień na swój Auth Service
+AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL","http://localhost:6700")
 
 def get_user_data(token: str) -> dict:
     """Pobiera dane użytkownika z Auth Service."""
