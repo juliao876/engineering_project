@@ -5,27 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../Analysis/.idea/Analysis.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Analysis/src/routers/v1/analysis_router.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Analysis/.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Analysis/src/database/models/Analysis.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Analysis/src/schemas/AnalysisChecklistSchema.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Analysis/src/schemas/AnalysisResponseSchema.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../AuthUsers/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../AuthUsers/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../AuthUsers/start_service.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../FigmaIntegration/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../FigmaIntegration/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../FigmaIntegration/start_service.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/start_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AuthUsers/AuthUsers" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AuthUsers/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AuthUsers/src/security/JWT.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/src/security/JWT.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../FigmaIntegration/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../FigmaIntegration/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../FigmaIntegration/src/routers/v1/figma_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/../FigmaIntegration/src/routers/v1/figma_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../FigmaIntegration/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/../FigmaIntegration/src/services/Services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Analysis/src/routers/v1/analysis_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Analysis/src/routers/v1/analysis_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Analysis/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Analysis/src/services/Services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/security/auth_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/security/auth_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/Services.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
