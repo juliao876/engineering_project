@@ -1,0 +1,12 @@
+# Environment files and directories
+.env
+env/
+
+# macOS Finder metadata
+.DS_Store
+
+# Database files
+*.db
+
+# Compiled Python bytecode
+*.pyc

@@ -9,3 +9,4 @@ psycopg
 psutil
 PyJWT
 pydantic[email]
+httpx

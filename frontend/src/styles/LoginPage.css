@@ -1,0 +1,123 @@
+@import './tokens.css';
+
+.login-page {
+  height: 100vh;
+  background: #f4f4f4;
+  /* Prevent vertical scrolling while keeping the layout centered */
+  overflow: hidden;
+  padding: 24px 48px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-page__nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  /* Anchor the nav near the top even as the rest of the page centers */
+  align-self: flex-start;
+}
+
+.login-page__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--color-primary-500);
+  font-size: 18px;
+}
+
+.login-page__brandIcon {
+  height: 48px !important;
+  width: auto !important;
+}
+
+.login-page__content {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  display: grid;
+  /* Tilt more width toward the illustration while keeping the form compact */
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 32px;
+  align-items: center;
+  justify-items: center;
+  /* Center the main grid within the available vertical space */
+  flex: 1;
+}
+
+.login-page__card {
+  background: #ffffff;
+  border-radius: 16px;
+  /* Tighten padding to reduce the overall card footprint */
+  /* padding: 28px 30px; */
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e7e7e7;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  /* Further narrow the login card to shrink the input window */
+  max-width: 340px;
+  padding: 32px 36px;
+}
+
+.login-page__title {
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  color: #000000;
+}
+
+.login-page__form {
+  display: flex;
+  flex-direction: column;
+  /* Slightly increase spacing while keeping the inputs compact */
+  gap: 20px;
+}
+
+.login-page__switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #555555;
+}
+
+.login-page__switchText {
+  margin: 0;
+}
+
+.login-page__illustration {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.login-page__illustration img {
+  width: 100%;
+  aspect-ratio: 4/5;       /* bliÅ¼ej do figma */
+  max-width: 700px;        /* wizualnie idealnie */
+  object-fit: cover;
+  /* Taller illustration that stays above the fold with room at the bottom */
+  max-width: 760px;
+  max-height: calc(100vh - 220px);
+  object-fit: cover;
+  border-radius: 18px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 1024px) {
+  .login-page__content {
+    grid-template-columns: 1fr;
+  }
+
+  .login-page__illustration {
+    order: -1;
+  }
+}

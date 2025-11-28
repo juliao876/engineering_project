@@ -22,8 +22,8 @@ class Auth:
     @auth_router.post("/register")
     def register(self, register_data: RegisterSchema, db: Session = Depends(get_db)):
         auth_service = Services(db)
-        auth_service.register_new_user(register_data)
-        return auth_service, {"message": "Successfully registered"}
+        user = auth_service.register_new_user(register_data)
+        return {"message": "Successfully registered", "user": user.username}
     @auth_router.post("/login")
     def login(self, login_data: LoginSchema, response:Response, db: Session = Depends(get_db)):
         auth_service = Services(db)
@@ -57,7 +57,7 @@ class Auth:
             raise HTTPException(status_code=401, detail="Invalid token")
 
         payload = verify_jwt_token(token)
-        user_id = payload.get("sub")
+        user_id = int(payload.get("sub"))
         auth_service = Services(db)
         user_data = auth_service.get_user_by_id(user_id)
         return user_data
@@ -100,10 +100,3 @@ class Auth:
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         return {"user_id": user.id, "username": user.username, "email": user.email}
-
-
-
-
-
-
-

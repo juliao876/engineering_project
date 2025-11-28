@@ -1,0 +1,178 @@
+@import './tokens.css';
+
+.profile-page {
+  min-height: 100vh;
+  background: #f5f5f7;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER z logo + burger */
+
+.profile-page__header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 40px;
+  background: #f0f0f2;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.profile-page__logo img {
+  height: 40px;
+}
+
+/* przycisk z trzema kreskami */
+
+.profile-page__menuButton {
+  width: 32px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.profile-page__menuButton span {
+  height: 3px;
+  border-radius: 999px;
+  background: #333333;
+}
+
+/* MAIN */
+
+.profile-page__main {
+  flex: 1;
+  padding: 32px 72px 56px;
+}
+
+/* HERO */
+
+.profile-page__hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;  /* równe kolumny */
+  gap: 20px;                      /* mniejszy odstęp */
+  align-items: center;
+  background: #ffffff;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+
+.profile-page__heroImageWrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-page__avatarWrapper {
+  width: 140px;            /* rozmiar */
+  height: 140px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 40px auto 0;     /* centrowanie */
+  border: 4px solid #e3e4fd;
+  background: #f3f3f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.profile-page__heroImageWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+/* Maska z Twojego nieregularnego kształtu */
+.profile-page__heroMaskedImage {
+  width: 60%;                   /* możesz zmienić np. na 70% / 60% */
+  height: auto;
+  aspect-ratio: 1 / 1;          /* żeby nie rozciągało */
+  background-size: cover;
+  background-position: center;
+
+  /* M A S K A */
+  mask-image: url("../assets/images/Profile.png");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+
+  /* WebKit (Safari, Chrome) */
+  -webkit-mask-image: url("../assets/images/Profile.png");
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+
+  /* Tło gdy nie wrzucono zdjęcia */
+  background-color: #dbe0e8;
+  border-radius: 20px; /* zapobiega ostrym rogów przy braku maski */
+}
+
+.profile-page__heroContent {
+  padding: 20px 20px;
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+
+.profile-page__heroLabel {
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 12px;
+  margin: 0 0 8px;
+}
+
+.profile-page__heroName {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.profile-page__heroRole {
+  margin: 0 0 12px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.profile-page__heroBio {
+  margin: 0;
+  font-size: 14px;
+  color: #555555;
+}
+
+.profile-page__projects {
+  padding: 24px 24px 0;
+}
+
+.profile-page__projectsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px 32px;
+  margin-bottom: 32px;
+}
+
+.profile-page__createWrapper {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 40px;
+}
+
+.profile-page__bottomGradient {
+  height: 220px;
+  background: linear-gradient(
+    to bottom,
+    rgba(229, 123, 187, 0),
+    rgba(229, 123, 187, 0.35)
+  );
+}

@@ -1,0 +1,117 @@
+@import './tokens.css';
+
+.register-page {
+  height: 100vh;
+  background: #f4f4f4;
+  /* Prevent the register view from scrolling vertically */
+  overflow: hidden;
+  padding: 24px 48px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.register-page__nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  /* Keep the nav pinned near the top while the grid centers */
+  align-self: flex-start;
+}
+
+.register-page__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--color-primary-500);
+  font-size: 18px;
+}
+
+.register-page__brandIcon {
+  height: 48px !important;
+  width: auto !important;
+}
+
+.register-page__content {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  display: grid;
+  /* Favor the illustration column so it stays larger than the form */
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 32px;
+  align-items: center;
+  justify-items: center;
+  /* Allow the content grid to consume the available height for centering */
+  flex: 1;
+}
+
+.register-page__card {
+  background: #ffffff;
+  border-radius: 16px;
+  /* Tighten padding to shrink the card footprint */
+  /* padding: 28px 30px; */
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e7e7e7;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  /* Further narrow the register card to shrink the input window */
+  max-width: 350px;
+  padding: 32px 36px;
+}
+
+.register-page__title {
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  color: #000000;
+}
+
+.register-page__form {
+  display: flex;
+  flex-direction: column;
+  /* Increase spacing while keeping stacked inputs compact */
+  gap: 22px;
+}
+
+.register-page__switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #555555;
+}
+
+.register-page__switchText {
+  margin: 0;
+}
+
+.register-page__illustration {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.register-page__illustration img {
+  width: 100%;
+  aspect-ratio: 3/4;
+  /* Taller illustration that remains comfortably inside the viewport */
+  max-width: 820px;
+  max-height: calc(100vh - 210px);
+  object-fit: cover;
+  border-radius: 18px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 1024px) {
+  .register-page__content {
+    grid-template-columns: 1fr;
+  }
+}

@@ -6,15 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="">
       <change afterPath="$PROJECT_DIR$/../Analysis/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Analysis/src/database/models/Analysis.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Analysis/src/schemas/AnalysisChecklistSchema.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Analysis/src/schemas/AnalysisResponseSchema.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../AuthUsers/.env" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../FigmaIntegration/.env" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Analysis/src/routers/v1/analysis_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Analysis/src/routers/v1/analysis_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Analysis/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Analysis/src/services/Services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

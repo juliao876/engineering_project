@@ -2,6 +2,7 @@ from fastapi import HTTPException, Response
 
 from pip._internal.network.auth import Credentials
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select, update
 from starlette import status
 from src.schemas.LoginSchema import LoginSchema
@@ -12,6 +13,7 @@ from src.database.models.Users import Users
 from src.security.JWT import create_jwt_token
 from src.security.PasswordHash import password_verify, hash_password
 from src.schemas.RoleSchema import RoleSchema
+import httpx
 
 
 class Services:
@@ -27,8 +29,18 @@ class Services:
                      family_name=register_schema.family_name
                      )
         self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
+        try:
+            self.db.commit()
+            self.db.refresh(user)
+        except IntegrityError as exc:
+            self.db.rollback()
+            message = "User already exists"
+            if "ix_users_username" in str(exc.orig):
+                message = "Username already in use"
+            elif "ix_users_email" in str(exc.orig):
+                message = "Email already in use"
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=message)
+
         return user
 
     def login_user(self, login_schema: LoginSchema, response: Response):
@@ -61,7 +73,7 @@ class Services:
         return credentials
 
     def update_user(self, payload, update_input: UpdateSchema):
-        user_id = payload["sub"]
+        user_id = int(payload["sub"])
         user = self.db.query(Users).filter(Users.id == user_id).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
@@ -90,36 +102,28 @@ class Services:
 
         return {"username": user.username, "new_role": user.role, "message": "Role updated successfully"}
 
-    def get_user_projects_tittle(self, user_id: int, httpx=None):
+    def get_user_projects_tittle(self, user_id: int):
         user = self.db.query(Users).filter(Users.id == user_id).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         try:
-            with httpx.AsyncClient() as client:
-                response = client.post(
-                    "http://127.0.0.1:6701/projects/titles",
-                    json=user.projects,
-                    headers={"Content-Type": "application/json"}
-                )
+            response = httpx.post(
+                "http://127.0.0.1:6701/projects/titles",
+                json=user.projects,
+                headers={"Content-Type": "application/json"},
+                timeout=5.0,
+            )
             if response.status_code == 200:
                 return response.json()
-            else:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Insufficient credentials",
-                )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=response.json() if response.content else "Unable to fetch projects",
+            )
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error connecting to Projects service: {e}")
 
     def get_user_by_username(self, username: str):
         user = self.db.query(Users).filter(Users.username == username).first()
         return user
-
-
-
-
-
-
-
-
-

@@ -1,0 +1,21 @@
+:root{
+  --color-primary-500: #4349D8;
+  --color-primary-300: #2C2F8C;
+  --color-primary-50:  #E3E4FD;
+
+  --color-secondary-500: #F8E4BB;
+  --color-accent-500: #E57BBB;
+
+
+  --font-h1: 72px;
+  --font-h2: 48px;
+  --font-h3: 32px;
+  --font-h4: 24px;
+  --font-h5: 18px;
+  --font-p: 16px;
+
+  --font-primary: 'Alexandria', sans-serif;
+  --font-secondary: 'Ubuntu', sans-serif;
+
+
+}

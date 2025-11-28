@@ -1,0 +1,31 @@
+.navbar {
+  height: 64px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  border-bottom: 1px solid #e4e4e4;
+}
+
+.navbar__brand {
+  display: flex;
+  align-items: center;
+}
+
+.navbar__logo {
+  height: 44px;
+  width: auto;
+}
+
+.navbar__menuButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.navbar__menuIcon {
+  width: 28px;
+  height: 28px;
+}

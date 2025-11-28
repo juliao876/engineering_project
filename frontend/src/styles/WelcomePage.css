@@ -1,0 +1,125 @@
+@import '../styles/tokens.css';
+
+.welcome {
+  position: relative;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #f9f7ff;
+  padding: 24px;
+}
+
+.welcome__background {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.welcome__background img {
+  /* Circle size (halo) */
+  width: min(280vw, 3200px);
+  max-height: 165vh;
+  object-fit: contain;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 10px 30px rgba(44, 47, 140, 0.15));
+}
+
+.welcome__content {
+  position: relative;
+  width: min(720px, 100%);
+  min-height: 420px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 24px;
+  z-index: 1;
+}
+
+.welcome__hero {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  text-align: center;
+  transition: transform 1.7s ease-out, gap 1.7s ease-out;
+  transform: translateY(0) scale(1);
+}
+
+.welcome__hero.is-condensed {
+  /* Final title+logo position + scale */
+  transform: translateY(-150px) scale(0.8);
+  gap: 6px;
+}
+
+.welcome__title {
+  font-size: var(--font-h2);
+  font-weight: 700;
+  font-family: var(--font-secondary);
+  color: #000;
+}
+
+.welcome__brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  transition: transform 1.7s ease-out;
+}
+
+.welcome__brand img {
+  /* Initial logo size */
+  height: 72px;
+  width: auto;
+}
+
+.welcome__hero.is-condensed .welcome__brand {
+  /* Final logo scale */
+  transform: scale(0.78);
+}
+
+.welcome__actions {
+  display: flex;
+  /* Spacing between Register & Log in */
+  gap: 112px;
+  opacity: 0;
+  transform: translateY(26px) scale(0.97);
+  transition: opacity 1.7s ease-out 0.12s, transform 1.7s ease-out 0.12s;
+  pointer-events: none;
+}
+
+.welcome__actions.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+@media (max-width: 600px) {
+  .welcome__background img {
+    width: 165vw;
+  }
+
+  .welcome__content {
+    min-height: 360px;
+  }
+
+  .welcome__title {
+    font-size: 40px;
+  }
+
+  .welcome__brand img {
+    height: 56px;
+  }
+
+  .welcome__actions {
+    gap: 12px;
+    flex-direction: column;
+  }
+}
