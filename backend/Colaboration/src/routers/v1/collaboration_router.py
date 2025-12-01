@@ -8,19 +8,12 @@ from src.services.Services import Services
 
 from src.schemas.CommentSchema import CommentSchema, ReplySchema
 from src.schemas.RatingSchema import RatingSchema
-from src.schemas.FollowerSchema import FollowerSchema
-
 
 collaboration_router = APIRouter(prefix="/collab", tags=["Collaboration"])
 
-
 @cbv(collaboration_router)
-class CollaborationEndpoints:
+class Collaboration:
     db: Session = Depends(get_db)
-
-    # ============================================================
-    #                          ⭐ RATING
-    # ============================================================
     @collaboration_router.post("/projects/{project_id}/rating")
     def rate_project(self, project_id: int, payload: RatingSchema, request: Request):
         # --- auth ---
@@ -49,10 +42,6 @@ class CollaborationEndpoints:
     def get_project_rating(self, project_id: int):
         service = Services(self.db)
         return service.get_rating(project_id)
-
-    # ============================================================
-    #                     💬 COMMENTS + REPLIES
-    # ============================================================
     @collaboration_router.post("/projects/{project_id}/comments")
     def add_comment(self, project_id: int, payload: CommentSchema, request: Request):
 
@@ -80,17 +69,13 @@ class CollaborationEndpoints:
 
     @collaboration_router.post("/comments/{comment_id}/reply")
     def reply_to_comment(self, comment_id: int, payload: ReplySchema, request: Request):
-
         token = request.cookies.get("token")
         if not token:
             raise HTTPException(status_code=401, detail="Not authenticated")
-
         user_data = get_user_data(token)
         user_id = user_data.get("id") or user_data.get("user_id")
-
         service = Services(self.db)
         reply = service.reply_to_comment(comment_id, user_id, payload)
-
         return {
             "message": "Reply added",
             "reply": {
@@ -107,7 +92,6 @@ class CollaborationEndpoints:
     def get_comments(self, project_id: int):
         service = Services(self.db)
         comments = service.get_project_comments(project_id)
-
         def serialize(comment):
             return {
                 "id": comment.id,
@@ -117,43 +101,17 @@ class CollaborationEndpoints:
                 "created_at": comment.created_at,
                 "replies": [serialize(r) for r in getattr(comment, "replies", [])]
             }
-
         return [serialize(c) for c in comments]
-
-    # ============================================================
-    #                     👤 FOLLOW / UNFOLLOW
-    # ============================================================
-    @collaboration_router.post("/users/follow")
-    def follow_user(self, payload: FollowerSchema, request: Request):
-
-        token = request.cookies.get("token")
-        if not token:
-            raise HTTPException(status_code=401, detail="Not authenticated")
-
-        user_data = get_user_data(token)
-        user_id = user_data.get("id") or user_data.get("user_id")
-
-        service = Services(self.db)
-        result = service.follow_user(user_id, payload)
-
-        return result
-
-    # ============================================================
-    #                      🔔 NOTIFICATIONS
-    # ============================================================
     @collaboration_router.get("/notifications")
     def get_notifications(self, request: Request):
-
         token = request.cookies.get("token")
         if not token:
             raise HTTPException(status_code=401, detail="Not authenticated")
-
         user_data = get_user_data(token)
         user_id = user_data.get("id") or user_data.get("user_id")
 
         service = Services(self.db)
         notifications = service.get_notifications(user_id)
-
         return [
             {
                 "id": n.id,
@@ -166,10 +124,8 @@ class CollaborationEndpoints:
             }
             for n in notifications
         ]
-
     @collaboration_router.post("/notifications/read/{notification_id}")
     def mark_notification_read(self, notification_id: int, request: Request):
-
         token = request.cookies.get("token")
         if not token:
             raise HTTPException(status_code=401, detail="Not authenticated")

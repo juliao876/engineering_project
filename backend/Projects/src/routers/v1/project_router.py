@@ -24,7 +24,6 @@ class Projects():
 
         if not user_id:
             raise HTTPException(status_code=401, detail="Not authenticated")
-
         service = Services(db)
         new_project = service.create_project(project, user_id)
 

@@ -14,23 +14,17 @@ class Services:
         self.db = db
 
     def run_analysis(self, project_id: int):
-        # 1. Pobierz dane z Figma Integration
         response = requests.get(f"{FIGMA_INTEGRATION_URL}/figma/{project_id}/data")
-
         if response.status_code != 200:
             raise HTTPException(
                 status_code=response.status_code,
                 detail="Could not fetch Figma data"
             )
-
         figma_data = response.json()
-
         # 2. Analiza UX
         issues_data = self._analyze_figma_data(figma_data)
-
         # 3. Generowanie podsumowania i opinii
         conclusions = self._generate_conclusions(issues_data)
-
         # 4. Zapis w bazie
         analysis = Analysis(
             analysis_id=f"A-{project_id}-{int(datetime.utcnow().timestamp())}",
@@ -47,11 +41,9 @@ class Services:
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()
         )
-
         self.db.add(analysis)
         self.db.commit()
         self.db.refresh(analysis)
-
         # 5. Zwróć wynik analizy
         return {
             "project_id": project_id,
@@ -60,19 +52,12 @@ class Services:
             "opinion": conclusions["opinion"],
             "recommendations": conclusions["recommendations"]
         }
-
-    # ======================================================
-    #                       ANALIZA UX
-    # ======================================================
     def _analyze_figma_data(self, figma_data: dict) -> dict:
-
         nodes = figma_data.get("nodes", [])
         issues = []
         device = "desktop"
-
         # ---------------- BUTTON SIZE ---------------------
         MIN_BUTTON_HEIGHT = 42
-
         for node in nodes:
             if node.get("type") == "BUTTON" or "button" in node.get("name", "").lower():
                 frame = node.get("absoluteBoundingBox", {})
@@ -134,7 +119,6 @@ class Services:
                             "actual_ratio": round(ratio, 2),
                             "node": node.get("id")
                         })
-
         # ---------------- LAYOUT DEPTH ---------------------
         def get_depth(node):
             if not node.get("children"):
@@ -148,7 +132,6 @@ class Services:
                 "average_depth": sum(depths) / len(depths),
                 "recommended_max": 5
             })
-
         # ---------------- RECOMMENDATIONS ------------------
         recommendations = []
 
@@ -166,7 +149,6 @@ class Services:
             "issues": issues,
             "recommendations": recommendations
         }
-
     # ======================================================
     #          GENEROWANIE PODSUMOWANIA I OPINII
     # ======================================================
@@ -181,7 +163,6 @@ class Services:
             "opinion": opinion,
             "recommendations": data["recommendations"]
         }
-
     def get_analysis(self, project_id: int):
         analysis = (
             self.db.query(Analysis)
@@ -189,10 +170,8 @@ class Services:
             .order_by(Analysis.created_at.desc())
             .first()
         )
-
         if not analysis:
             return None
-
         return {
             "project_id": int(analysis.project_id),
             "summary": analysis.summary,
@@ -201,9 +180,6 @@ class Services:
             "recommendations": json.loads(analysis.recomendation)
         }
     def get_checklist(self):
-        """
-        Zwraca stałą checklistę UX — zgodną z Twoją tabelą.
-        """
         return {
             "categories": [
                 {

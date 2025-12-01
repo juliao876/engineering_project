@@ -10,7 +10,7 @@ from src.database.db_connection import get_db
 analysis_router = APIRouter(prefix="/analysis", tags=["Analysis"])
 
 @cbv(analysis_router)
-class AnalysisEndpoints:
+class Analysis:
 
     @analysis_router.post("/{project_id}", response_model=AnalysisResponseSchema)
     def run_analysis(self, project_id: int):
@@ -22,10 +22,8 @@ class AnalysisEndpoints:
     def get_analysis(self, project_id: int):
         service = Services(self.db)
         result = service.get_analysis(project_id)
-
         if not result:
             raise HTTPException(status_code=404, detail="No analysis found for this project")
-
         return result
 
     @analysis_router.get("/checklist", response_model=AnalysisChecklistSchema)
