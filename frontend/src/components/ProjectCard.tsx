@@ -11,6 +11,9 @@ export interface ProjectCardProps {
   rating: number; // 0–5
   commentsCount?: number;
   figmaUrl?: string;
+  previewUrl?: string | null;
+  contentType?: "figma" | "image" | "video" | string;
+  onPreviewClick?: () => void;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
@@ -19,6 +22,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   rating,
   commentsCount = 0,
   figmaUrl,
+  previewUrl,
+  contentType,
+  onPreviewClick,
 }) => {
   const stars = Array.from({ length: 5 }, (_, index) => {
     const filled = index < rating;
@@ -28,7 +34,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       <img
         key={index}
         src={Icon}
-        alt={filled ? 'Filled star' : 'Empty star'}
+        alt={filled ? "Filled star" : "Empty star"}
         className="project-card__star"
       />
     );
@@ -36,10 +42,32 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
   return (
     <article className="project-card">
-      <div className="project-card__top">
+      <button
+        type="button"
+        className={`project-card__mediaWrapper ${contentType === "video" ? "is-video" : ""}`}
+        onClick={onPreviewClick}
+        aria-label="Open project details"
+      >
+        <div className="project-card__media">
+          {contentType === "video" && previewUrl ? (
+            <video src={previewUrl} muted playsInline />
+          ) : previewUrl ? (
+            <img src={previewUrl} alt={`${title} preview`} />
+          ) : (
+            <div className="project-card__placeholder">
+              <span className="project-card__placeholderCross" aria-hidden>
+                ×
+              </span>
+            </div>
+          )}
+        </div>
         <div className="project-card__rating">{stars}</div>
-        <div className="project-card__thumbnail" />
-      </div>
+        {contentType === "figma" && (
+          <span className="project-card__thumbnailBadge" aria-label="Figma project">
+            <img src={FigmaIcon} alt="Figma" />
+          </span>
+        )}
+      </button>
 
       <div className="project-card__bottom">
         <div>

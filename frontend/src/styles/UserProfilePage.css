@@ -1,0 +1,11 @@
+.profile-page--public .profile-page__bottomGradient {
+  background: linear-gradient(
+    to bottom,
+    rgba(160, 167, 233, 0),
+    rgba(160, 167, 233, 0.42)
+  );
+}
+
+.profile-page--public .profile-page__heroBio {
+  color: #4a4a4a;
+}

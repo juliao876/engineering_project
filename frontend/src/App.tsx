@@ -5,6 +5,10 @@ import WelcomePage from './pages/WelcomePage.tsx';
 import LoginPage from './pages/LoginPage.tsx';
 import RegisterPage from './pages/RegisterPage.tsx';
 import MyProfilePage from './pages/MyProfilePage.tsx';
+import CreateProjectPage from "./pages/CreateProjectPage.tsx";
+import UserProfilePage from "./pages/UserProfilePage.tsx";
+import FigmaCallbackPage from "./pages/FigmaCallbackPage.tsx";
+import SettingsPage from "./pages/SettingsPage.tsx";
 
 // Most important wrapper
 function WelcomeWithNavigation() {
@@ -24,6 +28,10 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/profile" element={<MyProfilePage />} />
+      <Route path="/projects/create" element={<CreateProjectPage />} />
+      <Route path="/users/:username" element={<UserProfilePage />} />
+      <Route path="/figma/callback" element={<FigmaCallbackPage />} />
+      <Route path="/settings" element={<SettingsPage />} />
     </Routes>
   );
 }

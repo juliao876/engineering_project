@@ -101,7 +101,7 @@
 
 .login-page__illustration img {
   width: 100%;
-  aspect-ratio: 4/5;       /* bliÅ¼ej do figma */
+  aspect-ratio: 4/5;       /* bliżej do figma */
   max-width: 700px;        /* wizualnie idealnie */
   object-fit: cover;
   /* Taller illustration that stays above the fold with room at the bottom */

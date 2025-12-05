@@ -14,14 +14,16 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
         <img src={Logo} alt="uinside logo" className="navbar__logo" />
       </div>
 
-      <button
-        type="button"
-        className="navbar__menuButton"
-        onClick={onMenuClick}
-        aria-label="Open menu"
-      >
-        <img src={SidebarIcon} alt="Menu icon" className="navbar__menuIcon" />
-      </button>
+      <div className="navbar__actions">
+        <button
+          type="button"
+          className="navbar__menuButton"
+          onClick={onMenuClick}
+          aria-label="Open menu"
+        >
+          <img src={SidebarIcon} alt="Menu icon" className="navbar__menuIcon" />
+        </button>
+      </div>
     </header>
   );
 };

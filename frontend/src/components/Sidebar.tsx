@@ -16,6 +16,7 @@ export interface SidebarProps {
   onClose: () => void;
   activeItem?: SidebarItemId;
   onLogout?: () => void | Promise<void>;
+  onSelect?: (item: SidebarItemId) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -23,6 +24,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onClose,
   activeItem,
   onLogout,
+  onSelect,
 }) => {
   const items: { id: SidebarItemId; label: string }[] = [
     { id: 'home',          label: 'Home' },
@@ -35,11 +37,15 @@ const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   const handleClick = (itemId: SidebarItemId) => {
+    onSelect?.(itemId);
+
     if (itemId === 'logout') {
       onLogout?.();
     }
 
-    onClose();
+    if (itemId !== 'search') {
+      onClose();
+    }
   };
 
   return (

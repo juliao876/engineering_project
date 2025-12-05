@@ -6,6 +6,9 @@
   justify-content: space-between;
   padding: 0 32px;
   border-bottom: 1px solid #e4e4e4;
+  position: sticky;
+  top: 0;
+  z-index: 30;
 }
 
 .navbar__brand {
@@ -16,6 +19,12 @@
 .navbar__logo {
   height: 44px;
   width: auto;
+}
+
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .navbar__menuButton {

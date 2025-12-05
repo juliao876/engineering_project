@@ -1,72 +1,190 @@
-const BASE_URL = "http://localhost:6700/api/v1";
+// ======================
+//  UTILITY
+// ======================
 
-function getHeaders(isJSON = true) {
+const withFallback = (value: string | undefined, fallback: string) =>
+  value && value.trim().length > 0 ? value : fallback;
+
+// ======================
+//  BASE URLS
+// ======================
+
+const AUTH_BASE_URL = withFallback(process.env.REACT_APP_AUTH_URL, "http://localhost:6700/api/v1");
+const PROJECTS_BASE_URL = withFallback(process.env.REACT_APP_PROJECTS_URL, "http://localhost:6701/api/v1");
+const FIGMA_BASE_URL = withFallback(process.env.REACT_APP_FIGMA_URL, "http://localhost:6702/api/v1");
+
+// ======================
+//  HEADERS
+// ======================
+
+function buildHeaders(body?: any): Record<string, string> {
   const token = localStorage.getItem("token");
   const headers: Record<string, string> = {};
 
-  if (isJSON) headers["Content-Type"] = "application/json";
-  if (token) headers["Authorization"] = `Bearer ${token}`;
+  // Jeśli body jest JSON, ustawiamy Content-Type
+  if (body && !(body instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  // Token autoryzacji
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
 
   return headers;
 }
 
-async function request(endpoint: string, options: RequestInit = {}) {
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    ...options,
-    credentials: "include",
-    headers: {
-      ...getHeaders(options.body !== undefined),
-      ...options.headers,
-    },
-  });
+// ======================
+//  REQUEST WRAPPER
+// ======================
 
-  const text = await response.text();
-  let data = null;
+async function request(baseUrl: string, endpoint: string, options: RequestInit = {}) {
+  const headers = buildHeaders(options.body);
 
   try {
-    data = text ? JSON.parse(text) : null;
-  } catch (e) {
-    data = text;
-  }
+    const response = await fetch(`${baseUrl}${endpoint}`, {
+      ...options,
+      credentials: "include",
+      headers: {
+        ...headers,
+        ...(options.headers || {}),
+      },
+    });
 
-  return {
-    ok: response.ok,
-    status: response.status,
-    data,
-  };
+    const text = await response.text();
+    let data = null;
+
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch {
+      data = text;
+    }
+
+    return {
+      ok: response.ok,
+      status: response.status,
+      data,
+    };
+  } catch (error: any) {
+    return {
+      ok: false,
+      status: 0,
+      data: { detail: error?.message || "Network error" },
+    };
+  }
 }
+
+// ======================
+//  AUTH API
+// ======================
+
 export const AuthAPI = {
   register: (payload: any) =>
-    request("/auth/register", {
+    request(AUTH_BASE_URL, "/auth/register", {
       method: "POST",
       body: JSON.stringify(payload),
     }),
 
   login: (payload: any) =>
-    request("/auth/login", {
+    request(AUTH_BASE_URL, "/auth/login", {
       method: "POST",
       body: JSON.stringify(payload),
     }),
 
   me: () =>
-    request("/auth/me", {
+    request(AUTH_BASE_URL, "/auth/me", {
       method: "GET",
     }),
 
   logout: () =>
-    request("/auth/logout", {
+    request(AUTH_BASE_URL, "/auth/logout", {
       method: "POST",
     }),
+
+  updateMe: (payload: any) =>
+    request(AUTH_BASE_URL, "/auth/me", {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }),
+
+  searchUsers: (query: string) =>
+    request(
+      AUTH_BASE_URL,
+      `/auth/search?query=${encodeURIComponent(query)}`,
+      { method: "GET" }
+    ),
+
+  getUserByUsername: (username: string) =>
+    request(AUTH_BASE_URL, `/auth/user/${encodeURIComponent(username)}`, {
+      method: "GET",
+    }),
 };
+
+// ======================
+//  PROJECTS API
+// ======================
+
 export const ProjectsAPI = {
   getMyProjects: () =>
-    request("/auth/projects", {
+    request(PROJECTS_BASE_URL, "/project/my", {
       method: "GET",
     }),
 
-  getUserByUsername: (username: string) =>
-    request(`/auth/user/${username}`, {
+  createProject: (form: FormData) =>
+    request(PROJECTS_BASE_URL, "/project/create_project", {
+      method: "POST",
+      body: form, // NIE ustawiamy Content-Type
+    }),
+
+  importFigma: (payload: { file_url: string }) =>
+    request(FIGMA_BASE_URL, "/figma/import", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  getPublicProjectsForUser: (username: string) =>
+    request(PROJECTS_BASE_URL, `/project/public/${username}`, {
       method: "GET",
+    }),
+};
+
+// ======================
+//  FIGMA API
+// ======================
+
+export const FigmaAPI = {
+  buildAuthUrl: (credentials?: { clientId?: string; clientSecret?: string; redirectUri?: string }) =>
+    request(FIGMA_BASE_URL, "/figma/auth-url", {
+      method: "GET",
+      headers: {
+        ...(credentials?.clientId ? { "x-figma-client-id": credentials.clientId } : {}),
+        ...(credentials?.clientSecret ? { "x-figma-client-secret": credentials.clientSecret } : {}),
+        ...(credentials?.redirectUri ? { "x-figma-redirect-uri": credentials.redirectUri } : {}),
+      },
+    }),
+
+  connect: (payload: {
+    code: string;
+    state?: string | null;
+    clientId?: string;
+    clientSecret?: string;
+    redirectUri?: string;
+  }) =>
+    request(FIGMA_BASE_URL, "/figma/connect", {
+      method: "POST",
+      body: JSON.stringify({
+        code: payload.code,
+        state: payload.state,
+        client_id: payload.clientId,
+        client_secret: payload.clientSecret,
+        redirect_uri: payload.redirectUri,
+      }),
+    }),
+
+  importFile: (payload: { file_url: string }) =>
+    request(FIGMA_BASE_URL, "/figma/import", {
+      method: "POST",
+      body: JSON.stringify(payload),
     }),
 };
 

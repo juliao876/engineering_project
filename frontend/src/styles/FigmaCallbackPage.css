@@ -1,0 +1,57 @@
+.figma-callback {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #111827, #1f2937);
+  color: #e5e7eb;
+  padding: 24px;
+}
+
+.figma-callback__card {
+  background: #0b1220;
+  border: 1px solid #1f2937;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+}
+
+.figma-callback__card h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+}
+
+.figma-callback__status {
+  margin: 0 0 12px;
+  font-size: 16px;
+  color: #cbd5e1;
+}
+
+.figma-callback__error {
+  margin: 0 0 12px;
+  color: #f87171;
+  font-weight: 600;
+}
+
+.figma-callback__button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 15px;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.figma-callback__button:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.figma-callback__button:active {
+  transform: translateY(0);
+}

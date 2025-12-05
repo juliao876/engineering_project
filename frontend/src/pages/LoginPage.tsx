@@ -30,6 +30,10 @@ const LoginPage: React.FC = () => {
     const res = await AuthAPI.login(payload);
 
     if (res.ok) {
+      const receivedToken = (res.data && (res.data.token || res.data["token"])) as string | undefined;
+      if (receivedToken) {
+        localStorage.setItem("token", receivedToken);
+      }
       addToast({ message: "Successfully logged in", type: "success" });
       setTimeout(() => navigate("/profile"), 500);
     } else {
