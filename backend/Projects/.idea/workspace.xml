@@ -5,10 +5,48 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../Analysis/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../AuthUsers/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../FigmaIntegration/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/schemas/ConnectFigmaSchema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthUsers/src/routers/v1/auth_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/src/routers/v1/auth_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthUsers/src/schemas/UpdateSchema.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/src/schemas/UpdateSchema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthUsers/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/src/services/Services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FigmaIntegration/.env" beforeDir="false" afterPath="$PROJECT_DIR$/../FigmaIntegration/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FigmaIntegration/src/database/models/FigmaFile.py" beforeDir="false" afterPath="$PROJECT_DIR$/../FigmaIntegration/src/database/models/FigmaFile.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FigmaIntegration/src/routers/v1/figma_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/../FigmaIntegration/src/routers/v1/figma_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FigmaIntegration/src/schemas/FigmaConnectSchema.py" beforeDir="false" afterPath="$PROJECT_DIR$/../FigmaIntegration/src/schemas/FigmaConnectSchema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FigmaIntegration/src/schemas/FigmaImportSchema.py" beforeDir="false" afterPath="$PROJECT_DIR$/../FigmaIntegration/src/schemas/FigmaImportSchema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FigmaIntegration/src/security/auth_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/../FigmaIntegration/src/security/auth_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FigmaIntegration/src/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/../FigmaIntegration/src/server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FigmaIntegration/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/../FigmaIntegration/src/services/Services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/models/Project.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/models/Project.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routers/v1/project_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/routers/v1/project_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schemas/ProjectSchema.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/ProjectSchema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/security/auth_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/security/auth_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/Services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../../docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/components/Navbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/components/Navbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/components/ProjectCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/components/ProjectCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/components/Sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/components/Sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/components/Toast.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/components/Toast.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/pages/CreateProject.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/pages/LoginPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/pages/LoginPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/pages/MyProfilePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/pages/MyProfilePage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/pages/RegisterPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/pages/RegisterPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/pages/SettingsPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/pages/SettingsPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/pages/UserProfilePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/pages/UserProfilePage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/services/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/services/api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/CreateProject.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/LoginPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/LoginPage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/MyProfilePage.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/MyProfilePage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/Navbar.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/Navbar.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/ProjectCard.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/ProjectCard.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/SettingsPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/SettingsPage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/Sidebar.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/Sidebar.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/UserProfilePage.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/UserProfilePage.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

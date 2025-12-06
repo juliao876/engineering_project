@@ -12,4 +12,5 @@ class Project(SQLModel, table=True):
     contents: Optional[str] = Field(default=None, nullable=True)
     figma_link: Optional[str] = Field(default=None)
     content_type: Optional[str] = Field(default=None, nullable=True)
+    preview_url: Optional[str] = Field(default=None, nullable=True)
 

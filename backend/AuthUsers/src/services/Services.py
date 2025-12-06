@@ -3,7 +3,7 @@ from fastapi import HTTPException, Response
 from pip._internal.network.auth import Credentials
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import select, update
+from sqlalchemy import select, update, or_
 from starlette import status
 from src.schemas.LoginSchema import LoginSchema
 from src.schemas.RegisterSchema import RegisterSchema
@@ -63,7 +63,7 @@ class Services:
         token = create_jwt_token({"sub": str(user.id)})
         response.set_cookie(key="token", value=token, httponly=True)
 
-        return {"message": "Successfully logged in", "user": user.username}
+        return {"message": "Successfully logged in", "user": user.username, "token": token}
 
     def get_user_by_id(self, user_id: int):
         user = self.db.query(Users).filter(Users.id == user_id).first()
@@ -77,17 +77,33 @@ class Services:
         user = self.db.query(Users).filter(Users.id == user_id).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        # if "name" in update_input:
-        #     user.name = update_input["name"]
-        # if "family_name" in update_input:
-        #     user.family_name = update_input["family_name"]
-        # if "password" in update_input:
-        #     user.password = update_input["password"]
-        #     #user.set_password(update_input["password"])
+
         update_data = update_input.dict(exclude_unset=True)
+        new_password = update_data.pop("new_password", None)
+        current_password = update_data.pop("current_password", None)
+
+        if new_password:
+            if not current_password or not password_verify(current_password, user.password):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Current password is incorrect",
+                )
+            user.password = hash_password(new_password)
+
         for key, value in update_data.items():
             setattr(user, key, value)
-        self.db.commit()
+
+        try:
+            self.db.commit()
+        except IntegrityError as exc:
+            self.db.rollback()
+            message = "Unable to update profile"
+            if "ix_users_username" in str(exc.orig):
+                message = "Username already in use"
+            elif "ix_users_email" in str(exc.orig):
+                message = "Email already in use"
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=message)
+
         self.db.refresh(user)
         return user, {"message": "Profile updated successfully"}
 
@@ -127,3 +143,33 @@ class Services:
     def get_user_by_username(self, username: str):
         user = self.db.query(Users).filter(Users.username == username).first()
         return user
+
+    def search_users(self, query: str):
+        if not query:
+            return []
+
+        pattern = f"%{query}%"
+
+        users = (
+            self.db.query(Users)
+            .filter(
+                or_(
+                    Users.username.ilike(pattern),
+                    Users.name.ilike(pattern),
+                    Users.family_name.ilike(pattern),
+                )
+            )
+            .limit(25)
+            .all()
+        )
+
+        return [
+            {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "name": user.name,
+                "family_name": user.family_name,
+            }
+            for user in users
+        ]

@@ -2,6 +2,7 @@ from sqlmodel import SQLModel, Field
 from typing import Optional
 from datetime import datetime
 
+
 class FigmaFile(SQLModel, table=True):
     __tablename__ = "figma_files"
     __table_args__ = {"extend_existing": True}
@@ -14,9 +15,9 @@ class FigmaFile(SQLModel, table=True):
     thumbnail_url: Optional[str] = Field(default=None, nullable=True)
     last_modified: Optional[datetime] = Field(default=None, nullable=True)
 
-    access_token: str = Field(nullable=False)
-    refresh_token: Optional[str] = Field(default=None)
-    expires_at: datetime = Field(nullable=False)
+    access_token: Optional[str] = Field(default=None, nullable=True)
+    refresh_token: Optional[str] = Field(default=None, nullable=True)
+    expires_at: Optional[datetime] = Field(default=None, nullable=True)
 
     created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
     updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)

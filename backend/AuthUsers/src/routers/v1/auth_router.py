@@ -27,8 +27,8 @@ class Auth:
     @auth_router.post("/login")
     def login(self, login_data: LoginSchema, response:Response, db: Session = Depends(get_db)):
         auth_service = Services(db)
-        user = auth_service.login_user(login_data, response = response)
-        return user, {"message": "Successfully logged in"}
+        result = auth_service.login_user(login_data, response = response)
+        return result
     @auth_router.post("/logout")
     def logout(self, response: Response, db: Session = Depends(get_db)):
         auth_service = Services(db)
@@ -99,4 +99,17 @@ class Auth:
         user = auth_service.get_user_by_username(username)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        return {"user_id": user.id, "username": user.username, "email": user.email}
+        return {
+            "user_id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "name": user.name,
+            "family_name": user.family_name,
+            "role": user.role,
+        }
+
+    @auth_router.get("/search")
+    def search_users(self, query: str, db: Session = Depends(get_db)):
+        auth_service = Services(db)
+        results = auth_service.search_users(query)
+        return {"results": results}

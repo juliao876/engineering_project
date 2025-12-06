@@ -27,6 +27,8 @@ services:
       - "6701:6701"
     env_file:
       - ./backend/Projects/.env
+    volumes:
+      - project_uploads:/app/uploads
 
   projects-db:
     image: postgres:16
@@ -62,4 +64,5 @@ volumes:
   auth_pgdata:
   projects_pgdata:
   figma_pgdata:
+  project_uploads:
   #tu dopisywac volumy
