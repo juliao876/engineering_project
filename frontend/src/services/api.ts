@@ -12,6 +12,7 @@ const withFallback = (value: string | undefined, fallback: string) =>
 const AUTH_BASE_URL = withFallback(process.env.REACT_APP_AUTH_URL, "http://localhost:6700/api/v1");
 const PROJECTS_BASE_URL = withFallback(process.env.REACT_APP_PROJECTS_URL, "http://localhost:6701/api/v1");
 const FIGMA_BASE_URL = withFallback(process.env.REACT_APP_FIGMA_URL, "http://localhost:6702/api/v1");
+const COLLAB_BASE_URL = withFallback(process.env.REACT_APP_COLLAB_URL, "http://localhost:6704/api/v1");
 
 // ======================
 //  HEADERS
@@ -185,6 +186,40 @@ export const FigmaAPI = {
     request(FIGMA_BASE_URL, "/figma/import", {
       method: "POST",
       body: JSON.stringify(payload),
+    }),
+};
+
+// ======================
+//  COLLAB API
+// ======================
+
+export const CollabAPI = {
+  rateProject: (projectId: number, value: number) =>
+    request(COLLAB_BASE_URL, `/collab/projects/${projectId}/rating`, {
+      method: "POST",
+      body: JSON.stringify({ value }),
+    }),
+
+  getProjectRating: (projectId: number) =>
+    request(COLLAB_BASE_URL, `/collab/projects/${projectId}/rating`, {
+      method: "GET",
+    }),
+
+  getProjectComments: (projectId: number) =>
+    request(COLLAB_BASE_URL, `/collab/projects/${projectId}/comments`, {
+      method: "GET",
+    }),
+
+  addProjectComment: (projectId: number, content: string) =>
+    request(COLLAB_BASE_URL, `/collab/projects/${projectId}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ content }),
+    }),
+
+  replyToComment: (commentId: number, content: string) =>
+    request(COLLAB_BASE_URL, `/collab/comments/${commentId}/reply`, {
+      method: "POST",
+      body: JSON.stringify({ content }),
     }),
 };
 

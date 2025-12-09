@@ -30,4 +30,4 @@ def wait_for_db():
 
 if __name__ == "__main__":
     wait_for_db()
-    uvicorn.run("src.server:app", host="0.0.0.0", port=6701)
+    uvicorn.run("src.server:app", host="0.0.0.0", port=6705)

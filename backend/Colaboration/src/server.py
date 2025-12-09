@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.openapi.docs import get_swagger_ui_html
 from starlette.middleware.cors import CORSMiddleware
@@ -6,6 +8,16 @@ from .global_settings import APP_NAME, APP_DESCRIPTION, APP_VERSION
 from .routers.api_router import api_router
 from .database.db_connection import engine
 from sqlmodel import SQLModel
+
+
+def _get_cors_origins():
+    raw_origins = os.getenv("CORS_ORIGINS")
+    if raw_origins:
+        origins = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
+    else:
+        origins = ["http://localhost:3000", "http://127.0.0.1:3000"]
+
+    return origins
 
 def create_app() -> FastAPI:
     app = FastAPI(
@@ -18,12 +30,15 @@ def create_app() -> FastAPI:
 
     SQLModel.metadata.create_all(engine)
 
+    cors_origins = _get_cors_origins()
+    allow_credentials = cors_origins != ["*"]
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=cors_origins,
         allow_methods=["*"],
         allow_headers=["*"],
-        allow_credentials=True,
+        allow_credentials=allow_credentials,
     )
 
     @app.get("/", include_in_schema=False)

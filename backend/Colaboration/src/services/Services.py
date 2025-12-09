@@ -1,4 +1,5 @@
-from fastapi import HTTPException, Response, requests
+from fastapi import HTTPException, Response
+import requests
 from pip._internal.network.auth import Credentials
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -7,8 +8,6 @@ import json
 from datetime import datetime
 from src.database.models.Rating import Rating
 from src.database.models.Comment import Comment
-from src.database.models.Follow import Follow
-from src.schemas.FollowerSchema import FollowerSchema
 from src.database.models.Notification import Notification
 from src.schemas.NotificationSchema import NotificationSchema
 from src.schemas.RatingSchema import RatingSchema
@@ -16,7 +15,20 @@ from src.schemas.CommentSchema import CommentSchema
 from src.schemas.CommentSchema import ReplySchema
 
 
-PROJECTS_URL = "http://127.0.0.1:6701"
+PROJECTS_URL = os.getenv("PROJECTS_SERVICE_URL", "http://project-service:6701/api/v1")
+AUTH_BASE_URL = os.getenv("AUTH_SERVICE_URL", "http://auth-service:6700")
+
+
+def _build_auth_url(path: str) -> str:
+    base = AUTH_BASE_URL.rstrip("/")
+
+    if not base.endswith("/api/v1"):
+        base = f"{base}/api/v1"
+
+    if not path.startswith("/"):
+        path = f"/{path}"
+
+    return f"{base}{path}"
 
 class Services:
     def __init__(self, db: Session):
@@ -30,23 +42,25 @@ class Services:
         )
 
         if rating:
-            rating.value = data.value
-            rating.created_at = datetime.utcnow()
+            rating.stars = data.value
+            rating.updated_at = datetime.utcnow()
         else:
             rating = Rating(
                 project_id=project_id,
                 user_id=user_id,
-                value=data.value,
+                stars=data.value,
             )
             self.db.add(rating)
 
         self.db.commit()
         self.db.refresh(rating)
 
+        self._notify_project_owner_about_rating(project_id, user_id, data.value)
+
         return rating
 
-    def get_rating(self, project_id: int):
-        avg_rating = self.db.query(func.avg(Rating.value)).filter(
+    def get_rating(self, project_id: int, user_id: int | None = None):
+        avg_rating = self.db.query(func.avg(Rating.stars)).filter(
             Rating.project_id == project_id
         ).scalar()
 
@@ -54,19 +68,89 @@ class Services:
             Rating.project_id == project_id
         ).scalar()
 
+        user_rating = None
+        if user_id:
+            existing = (
+                self.db.query(Rating)
+                .filter(Rating.project_id == project_id, Rating.user_id == user_id)
+                .first()
+            )
+            user_rating = existing.stars if existing else None
+
         return {
             "project_id": project_id,
             "average": float(avg_rating) if avg_rating else 0.0,
             "count": count,
+            "average_rating": float(avg_rating) if avg_rating else 0.0,
+            "total_ratings": count,
+            "user_rating": user_rating,
         }
 
-    def add_comment(self, project_id: int, user_id: int, data: CommentSchema):
+    def _fetch_project_owner(self, project_id: int):
+        try:
+            response = requests.get(f"{PROJECTS_URL}/project/details/{project_id}")
+            if response.status_code != 200:
+                return None
+            payload = response.json() or {}
+            return payload.get("project")
+        except Exception:
+            return None
+
+    def _notify_project_owner_about_rating(self, project_id: int, rater_id: int, value: int):
+        project = self._fetch_project_owner(project_id)
+        if not project:
+            return
+
+        owner_id = project.get("user_id")
+        if not owner_id or owner_id == rater_id:
+            return
+
+        message = f"Your project '{project.get('title', 'project')}' received a {value}/5 rating"
+
+        notification = Notification(
+            user_id=owner_id,
+            type="rating",
+            message=message,
+            project_id=project_id,
+        )
+
+        self.db.add(notification)
+        self.db.commit()
+
+    def _fetch_user_profile(self, user_id: int) -> dict:
+        try:
+            response = requests.get(_build_auth_url(f"auth/user/id/{user_id}"), timeout=5)
+            if response.status_code != 200:
+                return {}
+            payload = response.json() or {}
+            return {
+                "user_id": payload.get("user_id") or payload.get("id"),
+                "username": payload.get("username"),
+                "name": payload.get("name"),
+                "family_name": payload.get("family_name"),
+            }
+        except Exception:
+            return {}
+
+    def _serialize_comment(self, comment: Comment, profiles: dict) -> dict:
+        return {
+            "id": comment.id,
+            "project_id": comment.project_id,
+            "user_id": comment.user_id,
+            "parent_id": getattr(comment, "parent_id", None),
+            "content": comment.content,
+            "created_at": comment.created_at,
+            "author": profiles.get(comment.user_id, {}),
+            "replies": [],
+        }
+
+    def add_comment(self, project_id: int, user_id: int, data: CommentSchema, user_profile: dict | None = None):
         """Create new top-level comment"""
         new_comment = Comment(
             project_id=project_id,
             user_id=user_id,
             content=data.content,
-            parent_comment_id=None,
+            parent_id=None,
             created_at=datetime.utcnow(),
         )
 
@@ -74,9 +158,11 @@ class Services:
         self.db.commit()
         self.db.refresh(new_comment)
 
-        return new_comment
+        profile = user_profile or self._fetch_user_profile(user_id)
 
-    def reply_to_comment(self, comment_id: int, user_id: int, data: ReplySchema):
+        return self._serialize_comment(new_comment, {user_id: profile})
+
+    def reply_to_comment(self, comment_id: int, user_id: int, data: ReplySchema, user_profile: dict | None = None):
         parent = self.db.query(Comment).filter(Comment.id == comment_id).first()
         if not parent:
             raise HTTPException(status_code=404, detail="Parent comment not found")
@@ -85,7 +171,7 @@ class Services:
             project_id=parent.project_id,
             user_id=user_id,
             content=data.content,
-            parent_comment_id=comment_id,
+            parent_id=comment_id,
             created_at=datetime.utcnow(),
         )
 
@@ -93,7 +179,9 @@ class Services:
         self.db.commit()
         self.db.refresh(reply)
 
-        return reply
+        profile = user_profile or self._fetch_user_profile(user_id)
+
+        return self._serialize_comment(reply, {user_id: profile})
 
     def get_project_comments(self, project_id: int):
         comments = (
@@ -102,17 +190,22 @@ class Services:
             .order_by(Comment.created_at.asc())
             .all()
         )
-        comment_map = {c.id: c for c in comments}
-        tree = []
 
-        for c in comments:
-            if c.parent_comment_id:
-                parent = comment_map.get(c.parent_comment_id)
-                if not hasattr(parent, "replies"):
-                    parent.replies = []
-                parent.replies.append(c)
+        profiles = {}
+        user_ids = {c.user_id for c in comments}
+        for uid in user_ids:
+            profiles[uid] = self._fetch_user_profile(uid)
+
+        nodes = {c.id: self._serialize_comment(c, profiles) for c in comments}
+
+        tree: list[dict] = []
+        for comment in comments:
+            node = nodes[comment.id]
+            parent_id = getattr(comment, "parent_id", None)
+            if parent_id and parent_id in nodes:
+                nodes[parent_id]["replies"].append(node)
             else:
-                tree.append(c)
+                tree.append(node)
 
         return tree
 

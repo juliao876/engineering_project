@@ -5,11 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../Analysis/start_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Analysis/start_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthUsers/src/routers/v1/auth_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/src/routers/v1/auth_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Colaboration/.env" beforeDir="false" afterPath="$PROJECT_DIR$/../Colaboration/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Colaboration/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../Colaboration/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Colaboration/src/database/models/Rating.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Colaboration/src/database/models/Rating.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Colaboration/src/routers/v1/collaboration_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Colaboration/src/routers/v1/collaboration_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Colaboration/src/schemas/RatingSchema.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Colaboration/src/schemas/RatingSchema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Colaboration/src/security/auth_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Colaboration/src/security/auth_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Colaboration/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Colaboration/src/services/Services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Colaboration/start_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Colaboration/start_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Discover&amp;Followers/start_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Discover&amp;Followers/start_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/src/pages/MyProfilePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/pages/MyProfilePage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/src/pages/UserProfilePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/pages/UserProfilePage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/src/services/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/services/api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/MyProfilePage.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/MyProfilePage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routers/v1/project_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/routers/v1/project_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/Services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/pages/CreateProjectPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/pages/CreateProjectPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/CreateProjectPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/CreateProjectPage.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

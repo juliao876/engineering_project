@@ -16,7 +16,7 @@ from src.security.auth_utils import get_user_data_username
 
 
 FIGMA_SERVICE_URL = os.getenv("FIGMA_SERVICE_URL", "http://figma-service:6702/api/v1")
-PROJECTS_PUBLIC_URL = os.getenv("PROJECTS_PUBLIC_URL", "http://localhost:6701")
+PROJECTS_SERVICE_URL = os.getenv("PROJECTS_SERVICE_URL", "http://localhost:6701")
 UPLOAD_DIR = Path(__file__).resolve().parent.parent.parent / "uploads"
 
 class Services:
@@ -37,7 +37,7 @@ class Services:
         if stored_path.startswith("http://") or stored_path.startswith("https://"):
             return stored_path
         normalized = stored_path.lstrip("/")
-        return f"{PROJECTS_PUBLIC_URL.rstrip('/')}/{normalized}"
+        return f"{PROJECTS_SERVICE_URL.rstrip('/')}/{normalized}"
 
     def get_project_preview(self, project: Project) -> str | None:
         fallback_path = None
@@ -179,13 +179,20 @@ class Services:
             }
             for project in projects
         ]
+    def get_project(self, project_id: int):
+        project = self.db.get(Project, project_id)
 
-    # def guess_content_type(filename: str) -> str:
-    #     ext = os.path.splitext(filename)[1].lower()
-    #     if ext in [".png", ".jpg", ".jpeg", ".gif"]:
-    #         return "image"
-    #     elif ext in [".mp4", ".mov", ".avi"]:
-    #         return "video"
-    #     elif ext in [".fig"]:
-    #         return "figma"
-    #     return "unknown"
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        return {
+            "project_id": project.project_id,
+            "title": project.title,
+            "description": project.description,
+            "is_public": project.is_public,
+            "user_id": project.user_id,
+            "contents": project.contents,
+            "figma_link": project.figma_link,
+            "content_type": project.content_type,
+            "preview_url": self.get_project_preview(project),
+        }

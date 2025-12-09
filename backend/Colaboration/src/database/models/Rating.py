@@ -12,5 +12,14 @@ class Rating(SQLModel, table=True):
 
     stars: int = Field(default=0)  # 0–5 stars
 
+    # Backwards-compatible alias so legacy code referencing "value" keeps working
+    @property
+    def value(self) -> int:
+        return self.stars
+
+    @value.setter
+    def value(self, v: int) -> None:
+        self.stars = v
+
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

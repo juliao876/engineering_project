@@ -60,9 +60,30 @@ services:
       - "2224:5432"
     volumes:
       - figma_pgdata:/var/lib/postgresql/data
+
+  collab-service:
+    build: ./backend/Colaboration
+    depends_on:
+      - collab-db
+    ports:
+      - "6704:6704"
+    env_file:
+      - ./backend/Colaboration/.env
+
+  collab-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: collab_db
+    ports:
+      - "2226:5432"
+    volumes:
+      - collab_pgdata:/var/lib/postgresql/data
 volumes:
   auth_pgdata:
   projects_pgdata:
   figma_pgdata:
   project_uploads:
   #tu dopisywac volumy
+  collab_pgdata:

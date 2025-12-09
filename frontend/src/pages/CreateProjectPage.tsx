@@ -355,7 +355,6 @@ const CreateProjectPage: React.FC = () => {
           <section className="create-project-page__formWrapper">
             <div className="create-project-page__formHeader">
               <div>
-                <p className="create-project-page__formEyebrow">Project details</p>
                 <h3 className="create-project-page__formTitle">Share a new project</h3>
               </div>
               <Button variant="ghost" size="small" type="button" onClick={() => setShowTypeModal(true)}>

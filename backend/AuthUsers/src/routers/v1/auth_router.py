@@ -108,6 +108,12 @@ class Auth:
             "role": user.role,
         }
 
+    @auth_router.get("/user/id/{user_id}")
+    def get_user_by_id(self, user_id: int, db: Session = Depends(get_db)):
+        auth_service = Services(db)
+        user = auth_service.get_user_by_id(user_id)
+        return user
+
     @auth_router.get("/search")
     def search_users(self, query: str, db: Session = Depends(get_db)):
         auth_service = Services(db)

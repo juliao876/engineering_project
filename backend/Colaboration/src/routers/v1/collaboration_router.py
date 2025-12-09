@@ -11,13 +11,23 @@ from src.schemas.RatingSchema import RatingSchema
 
 collaboration_router = APIRouter(prefix="/collab", tags=["Collaboration"])
 
+
+def _extract_token(request: Request) -> str:
+    """Try to read JWT from cookie or Authorization header."""
+    token = request.cookies.get("token")
+    if not token:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.lower().startswith("bearer "):
+            token = auth_header.split(" ", 1)[1]
+    return token
+
 @cbv(collaboration_router)
 class Collaboration:
     db: Session = Depends(get_db)
     @collaboration_router.post("/projects/{project_id}/rating")
     def rate_project(self, project_id: int, payload: RatingSchema, request: Request):
         # --- auth ---
-        token = request.cookies.get("token")
+        token = _extract_token(request)
         if not token:
             raise HTTPException(status_code=401, detail="Not authenticated")
 
@@ -33,19 +43,27 @@ class Collaboration:
                 "id": rating.id,
                 "project_id": rating.project_id,
                 "user_id": rating.user_id,
-                "value": rating.value,
+                "value": rating.stars,
                 "created_at": rating.created_at,
             }
         }
 
     @collaboration_router.get("/projects/{project_id}/rating")
-    def get_project_rating(self, project_id: int):
+    def get_project_rating(self, project_id: int, request: Request):
+        token = _extract_token(request)
+        user_id = None
+        if token:
+            try:
+                user_data = get_user_data(token)
+                user_id = user_data.get("id") or user_data.get("user_id")
+            except Exception:
+                user_id = None
+
         service = Services(self.db)
-        return service.get_rating(project_id)
+        return service.get_rating(project_id, user_id)
     @collaboration_router.post("/projects/{project_id}/comments")
     def add_comment(self, project_id: int, payload: CommentSchema, request: Request):
-
-        token = request.cookies.get("token")
+        token = _extract_token(request)
         if not token:
             raise HTTPException(status_code=401, detail="Not authenticated")
 
@@ -53,38 +71,28 @@ class Collaboration:
         user_id = user_data.get("id") or user_data.get("user_id")
 
         service = Services(self.db)
-        new_comment = service.add_comment(project_id, user_id, payload)
+        new_comment = service.add_comment(project_id, user_id, payload, user_profile=user_data)
 
         return {
             "message": "Comment added",
             "comment": {
-                "id": new_comment.id,
-                "project_id": new_comment.project_id,
-                "user_id": new_comment.user_id,
-                "content": new_comment.content,
-                "parent_comment_id": new_comment.parent_comment_id,
-                "created_at": new_comment.created_at,
+                **new_comment,
             }
         }
 
     @collaboration_router.post("/comments/{comment_id}/reply")
     def reply_to_comment(self, comment_id: int, payload: ReplySchema, request: Request):
-        token = request.cookies.get("token")
+        token = _extract_token(request)
         if not token:
             raise HTTPException(status_code=401, detail="Not authenticated")
         user_data = get_user_data(token)
         user_id = user_data.get("id") or user_data.get("user_id")
         service = Services(self.db)
-        reply = service.reply_to_comment(comment_id, user_id, payload)
+        reply = service.reply_to_comment(comment_id, user_id, payload, user_profile=user_data)
         return {
             "message": "Reply added",
             "reply": {
-                "id": reply.id,
-                "project_id": reply.project_id,
-                "user_id": reply.user_id,
-                "content": reply.content,
-                "parent_comment_id": reply.parent_comment_id,
-                "created_at": reply.created_at,
+                **reply,
             }
         }
 
@@ -92,19 +100,10 @@ class Collaboration:
     def get_comments(self, project_id: int):
         service = Services(self.db)
         comments = service.get_project_comments(project_id)
-        def serialize(comment):
-            return {
-                "id": comment.id,
-                "project_id": comment.project_id,
-                "user_id": comment.user_id,
-                "content": comment.content,
-                "created_at": comment.created_at,
-                "replies": [serialize(r) for r in getattr(comment, "replies", [])]
-            }
-        return [serialize(c) for c in comments]
+        return {"comments": comments}
     @collaboration_router.get("/notifications")
     def get_notifications(self, request: Request):
-        token = request.cookies.get("token")
+        token = _extract_token(request)
         if not token:
             raise HTTPException(status_code=401, detail="Not authenticated")
         user_data = get_user_data(token)
@@ -126,7 +125,7 @@ class Collaboration:
         ]
     @collaboration_router.post("/notifications/read/{notification_id}")
     def mark_notification_read(self, notification_id: int, request: Request):
-        token = request.cookies.get("token")
+        token = _extract_token(request)
         if not token:
             raise HTTPException(status_code=401, detail="Not authenticated")
 

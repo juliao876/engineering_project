@@ -1,6 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
 
 class RatingSchema(BaseModel):
-    project_id: int
-    average_rating: float
-    total_ratings: int
+    value: int = Field(..., ge=1, le=5)

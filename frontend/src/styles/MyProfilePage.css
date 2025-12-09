@@ -301,13 +301,9 @@
 
 .profile-page__figmaRating {
   display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.profile-page__figmaRating img {
-  width: 18px;
-  height: 18px;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
 }
 
 .profile-page__commentsBlock {
@@ -347,6 +343,13 @@
   align-items: flex-start;
 }
 
+.profile-page__commentBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
 .profile-page__commentAvatar {
   width: 34px;
   height: 34px;
@@ -367,6 +370,46 @@
 .profile-page__commentText {
   margin: 4px 0 0;
   color: #4a4a4a;
+}
+
+.profile-page__commentActions {
+  margin-top: 2px;
+}
+
+.profile-page__replyButton {
+  border: none;
+  background: transparent;
+  color: #4349d8;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.profile-page__commentForm,
+.profile-page__replyForm {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.profile-page__commentForm {
+  width: 100%;
+}
+
+.profile-page__commentInput {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e1e1e8;
+  background: #fafafa;
+}
+
+.profile-page__replyList {
+  margin: 8px 0 0 32px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .profile-page__commentEmpty {

@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/ProjectCard.css';
 import StarEmptyIcon from '../assets/icons/StarEmpty-Icon.svg';
 import StarFullIcon from '../assets/icons/StarFull-Icon.svg';
 import CommentIcon from '../assets/icons/CommentIcon.svg';
 import FigmaIcon from '../assets/icons/FigmaIcon.svg';
+import { CollabAPI } from '../services/api.ts';
 
 export interface ProjectCardProps {
+  projectId: number;
   title: string;
   description: string;
-  rating: number; // 0–5
+  rating?: number; // 0–5
   commentsCount?: number;
   figmaUrl?: string;
   previewUrl?: string | null;
@@ -17,26 +19,49 @@ export interface ProjectCardProps {
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
+  projectId,
   title,
   description,
-  rating,
+  rating = 0,
   commentsCount = 0,
   figmaUrl,
   previewUrl,
   contentType,
   onPreviewClick,
 }) => {
+  const [averageRating, setAverageRating] = useState<number>(rating);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadRating() {
+      const response = await CollabAPI.getProjectRating(projectId);
+      if (!isMounted) return;
+      if (response.ok && response.data) {
+        const averageValue = response.data.average_rating ?? response.data.average ?? 0;
+        setAverageRating(averageValue);
+      }
+    }
+
+    loadRating();
+    return () => {
+      isMounted = false;
+    };
+  }, [projectId]);
+
   const stars = Array.from({ length: 5 }, (_, index) => {
-    const filled = index < rating;
+    const value = index + 1;
+    const filled = value <= Math.round(averageRating);
     const Icon = filled ? StarFullIcon : StarEmptyIcon;
 
     return (
-      <img
-        key={index}
-        src={Icon}
-        alt={filled ? "Filled star" : "Empty star"}
-        className="project-card__star"
-      />
+      <span key={value} className="project-card__starIcon" aria-hidden>
+        <img
+          src={Icon}
+          alt={filled ? "Filled star" : "Empty star"}
+          className="project-card__star"
+        />
+      </span>
     );
   });
 
@@ -61,7 +86,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             </div>
           )}
         </div>
-        <div className="project-card__rating">{stars}</div>
+        <div className="project-card__rating">
+          <div className="project-card__stars">{stars}</div>
+          <div className="project-card__ratingInfo">
+            <span className="project-card__ratingAverage">{averageRating.toFixed(1)}</span>
+            <span className="project-card__ratingLabel">Average</span>
+          </div>
+        </div>
         {contentType === "figma" && (
           <span className="project-card__thumbnailBadge" aria-label="Figma project">
             <img src={FigmaIcon} alt="Figma" />
