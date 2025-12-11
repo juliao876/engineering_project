@@ -13,6 +13,7 @@ const AUTH_BASE_URL = withFallback(process.env.REACT_APP_AUTH_URL, "http://local
 const PROJECTS_BASE_URL = withFallback(process.env.REACT_APP_PROJECTS_URL, "http://localhost:6701/api/v1");
 const FIGMA_BASE_URL = withFallback(process.env.REACT_APP_FIGMA_URL, "http://localhost:6702/api/v1");
 const COLLAB_BASE_URL = withFallback(process.env.REACT_APP_COLLAB_URL, "http://localhost:6704/api/v1");
+const FOLLOW_BASE_URL = withFallback(process.env.REACT_APP_FOLLOW_URL,"http://localhost:6705/api/v1");
 
 // ======================
 //  HEADERS
@@ -222,5 +223,22 @@ export const CollabAPI = {
       body: JSON.stringify({ content }),
     }),
 };
+// ======================
+//  FOLLOW API
+// ======================
+
+export const FollowAPI = {
+  toggleFollow: (followingId: number) =>
+    request(FOLLOW_BASE_URL, "/users/follow", {
+      method: "POST",
+      body: JSON.stringify({ following_id: followingId }),
+    }),
+
+  getStatus: (username: string) =>
+    request(FOLLOW_BASE_URL, `/users/${username}/follow-status`, {
+      method: "GET",
+    }),
+}
+
 
 export default request;

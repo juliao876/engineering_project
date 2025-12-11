@@ -11,7 +11,7 @@ import ProjectCard from "../components/ProjectCard.tsx";
 
 import ProfileImage from "../assets/images/Profile.png";
 
-import { AuthAPI, CollabAPI, ProjectsAPI } from "../services/api.ts";
+import { AuthAPI, CollabAPI, ProjectsAPI, FollowAPI } from "../services/api.ts";
 import Rating from "../components/Rating.tsx";
 
 type CommentItem = {
@@ -38,6 +38,9 @@ const UserProfilePage: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isModalClosing, setIsModalClosing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<any | null>(null);
+  const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [commentText, setCommentText] = useState("");
   const [replyTexts, setReplyTexts] = useState<Record<number, string>>({});
@@ -76,6 +79,28 @@ const UserProfilePage: React.FC = () => {
       } else {
         setProjects([]);
       }
+
+      // Pobierz aktualnie zalogowanego użytkownika
+      const meResponse = await AuthAPI.me();
+
+      if (meResponse.ok) {
+        setCurrentUser(meResponse.data);
+      } else {
+        setCurrentUser(null);
+      }
+
+      // Jeśli użytkownik jest zalogowany AND istnieje profil, który oglądamy
+      if (meResponse.ok && userResponse.ok) {
+        const followStatus = await FollowAPI.getStatus(username);
+
+        if (followStatus.ok) {
+          setIsFollowing(followStatus.data.is_following);
+        } else {
+          setIsFollowing(false);
+        }
+      }
+
+
 
       setLoading(false);
     }
@@ -147,6 +172,7 @@ const UserProfilePage: React.FC = () => {
     }
   };
 
+
   const insertReply = (list: CommentItem[], parentId: number, reply: CommentItem): CommentItem[] =>
     list.map((item) => {
       if (item.id === parentId) {
@@ -156,7 +182,24 @@ const UserProfilePage: React.FC = () => {
         return { ...item, replies: insertReply(item.replies, parentId, reply) };
       }
       return item;
-    });
+  });
+  const handleFollowClick = async () => {
+    if (!user || !currentUser) return;
+
+    setIsFollowLoading(true);
+
+    // OPTIMISTIC UPDATE — UI zmienia się natychmiast
+    setIsFollowing((prev) => !prev);
+
+    const res = await FollowAPI.toggleFollow(user.user_id);
+
+    if (!res.ok) {
+      // Cofamy jeśli backend zwróci błąd
+      setIsFollowing((prev) => !prev);
+    }
+
+    setIsFollowLoading(false);
+  };
 
   const handleReplySubmit = async (commentId: number) => {
     const replyValue = replyTexts[commentId];
@@ -230,6 +273,23 @@ const UserProfilePage: React.FC = () => {
                 ? "Loading profile..."
                 : "User not found."}
             </p>
+            {currentUser &&
+              user &&
+              currentUser.username !== user.username && (
+                <Button
+                  variant={isFollowing ? "secondary" : "primary"}
+                  size="medium"
+                  onClick={handleFollowClick}
+                  disabled={isFollowLoading || isFollowing === null}
+                  style={{ marginTop: "1rem" }}
+                >
+                  {isFollowLoading
+                    ? "Loading..."
+                    : isFollowing
+                    ? "Unfollow"
+                    : "Follow"}
+                </Button>
+              )}
           </div>
         </section>
 

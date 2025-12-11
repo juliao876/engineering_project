@@ -137,7 +137,7 @@ class Fig:
             project_data.get("name"),
             project_data.get("preview_url"),
         )
-
+        print(project_data["project"])
         return {
             "message": "Project imported successfully",
             "figma_link": figma_url,
