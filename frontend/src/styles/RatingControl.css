@@ -1,0 +1,57 @@
+rating.rating-control {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rating-control__stars {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.rating-control__starButton {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  line-height: 0;
+  outline: none;
+}
+
+.rating-control__starButton:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.rating-control__starButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.rating-control__star {
+  width: 20px;
+  height: 20px;
+}
+
+.rating-control__info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rating-control__average {
+  font-weight: 700;
+  color: #111;
+}
+
+.rating-control__label {
+  font-size: 13px;
+  color: #444;
+}
+
+.rating-control__status {
+  margin: 0;
+  font-size: 12px;
+  color: #2a6f29;
+}

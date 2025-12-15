@@ -7,3 +7,4 @@ typing_inspect==0.9.0
 argon2-cffi==25.1.0
 psycopg
 psutil
+requests==2.32.3

@@ -206,9 +206,10 @@ class Services:
             "document": data.get("document"),
             "name": data.get("name"),
             "preview_url": preview_url,
+            "project_id": figma_file.project_id,
         }
         logger.info("Imported project payload for %s: %s", file_key, project_payload)
-        return project_payload
+        return project_payload, figma_file
 
     def get_preview_image(self, file_key: str, node_id: str, token: str) -> Optional[str]:
         normalized_node_id = node_id.replace("-", ":") if node_id else node_id
@@ -255,6 +256,7 @@ class Services:
         user_id: int,
         figma_url: str,
         token: str,
+        figma_file: FigmaFile,
         project_name: Optional[str] = None,
         preview_url: Optional[str] = None,
     ):
@@ -277,6 +279,18 @@ class Services:
             )
             if response.status_code != 200:
                 print(f"[!] Failed to update project in Projects: {response.text}")
+            else:
+                data = response.json() if response.headers.get("content-type", "").startswith("application/json") else {}
+                project_payload = data.get("project") if isinstance(data, dict) else None
+                project_id = None
+                if isinstance(project_payload, dict):
+                    project_id = project_payload.get("id") or project_payload.get("project_id")
+
+                if project_id and figma_file.project_id != project_id:
+                    figma_file.project_id = project_id
+                    self.db.add(figma_file)
+                    self.db.commit()
+                    self.db.refresh(figma_file)
         except Exception as e:
             print(f"[!] Error contacting Projects service: {e}")
 

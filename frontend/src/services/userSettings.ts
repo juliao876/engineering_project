@@ -3,6 +3,7 @@ export type UserSettings = {
   bioText: string;
   figmaClientId: string;
   figmaClientSecret: string;
+  avatarUrl?: string;
 };
 
 const STORAGE_KEY = "user_settings";
@@ -12,6 +13,7 @@ const defaultSettings: UserSettings = {
   bioText: "",
   figmaClientId: "",
   figmaClientSecret: "",
+  avatarUrl: "",
 };
 
 export function loadUserSettings(): UserSettings {

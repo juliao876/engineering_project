@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import '../styles/Navbar.css';
 import Logo from '../assets/icons/Logo.svg';
 import SidebarIcon from '../assets/icons/SidebarIcon.svg';
@@ -11,7 +12,9 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
   return (
     <header className="navbar">
       <div className="navbar__brand">
-        <img src={Logo} alt="uinside logo" className="navbar__logo" />
+        <Link to="/discover" aria-label="Go to Discover">
+          <img src={Logo} alt="uinside logo" className="navbar__logo" />
+        </Link>
       </div>
 
       <div className="navbar__actions">

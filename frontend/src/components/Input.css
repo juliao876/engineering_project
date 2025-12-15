@@ -88,6 +88,19 @@
   right: 16px;
 }
 
+.input__iconButton {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.input__iconButton:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
 .input__helper {
   font-size: 14px;
   color: #000000;

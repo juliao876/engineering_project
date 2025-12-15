@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "../styles/MyProfilePage.css";
 import "../styles/tokens.css";
 
@@ -12,10 +12,10 @@ import Button from "../components/Button.tsx";
 import Navbar from "../components/Navbar.tsx";
 import SearchOverlay from "../components/SearchOverlay.tsx";
 import Rating from "../components/Rating.tsx";
+import { useToast } from "../components/ToastProvider.tsx";
 
 import { AuthAPI, CollabAPI, ProjectsAPI } from "../services/api.ts";
 import { useNavigate } from "react-router-dom";
-import { loadUserSettings } from "../services/userSettings.ts";
 
 type CommentItem = {
   id: number;
@@ -30,6 +30,7 @@ type CommentItem = {
 
 const MyProfilePage: React.FC = () => {
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
@@ -84,6 +85,8 @@ const MyProfilePage: React.FC = () => {
     }
   };
 
+  const projectIdFor = useCallback((project: any) => project?.project_id || project?.id, []);
+
   useEffect(() => {
     async function loadData() {
       const me = await AuthAPI.me();
@@ -107,17 +110,55 @@ const MyProfilePage: React.FC = () => {
     loadData();
   }, [navigate]);
 
+  const handleToggleVisibility = async (project: any) => {
+    const id = projectIdFor(project);
+    if (!id) return;
+    const nextVisibility = !project.is_public;
+    const response = await ProjectsAPI.updateProject(id, { is_public: nextVisibility });
+    if (response.ok) {
+      setProjects((prev) =>
+        prev.map((p) =>
+          projectIdFor(p) === id ? { ...p, is_public: nextVisibility } : p,
+        ),
+      );
+      setSelectedProject((prev) =>
+        prev && projectIdFor(prev) === id ? { ...prev, is_public: nextVisibility } : prev,
+      );
+      addToast({
+        message: nextVisibility ? "Project is now public" : "Project is now private",
+        type: "success",
+      });
+    } else {
+      addToast({
+        message: response.data?.detail || "Could not update visibility",
+        type: "error",
+      });
+    }
+  };
+
+  const handleDeleteProject = async (projectId?: number) => {
+    if (!projectId) return;
+    const response = await ProjectsAPI.deleteProject(projectId);
+    if (response.ok) {
+      setProjects((prev) => prev.filter((p) => projectIdFor(p) !== projectId));
+      if (selectedProjectId === projectId) {
+        closeModalWithAnimation();
+      }
+      addToast({ message: "Project deleted", type: "success" });
+    } else {
+      addToast({
+        message: response.data?.detail || "Could not delete project",
+        type: "error",
+      });
+    }
+  };
+
   const displayName = user
     ? [user.name, user.family_name].filter(Boolean).join(" ") || user.username
     : "Loading...";
 
   const displayUsername = user ? user.username : "";
-
-  const userSettings = useMemo(() => loadUserSettings(), []);
-  const customBio =
-    userSettings.bioEnabled && userSettings.bioText.trim().length > 0
-      ? userSettings.bioText.trim()
-      : null;
+  const avatarSrc = user?.avatar_url || ProfileImage;
 
   // const renderStars = (value: number) => {
   //   return Array.from({ length: 5 }, (_, index) => {
@@ -233,7 +274,11 @@ const MyProfilePage: React.FC = () => {
         {/* HERO */}
         <section className="profile-page__hero">
           <div className="profile-page__heroImageWrapper">
-            <img src={ProfileImage} alt="Profile gradient" />
+            <div
+              className="profile-page__heroMaskedImage"
+              style={{ backgroundImage: `url(${avatarSrc})` }}
+              aria-label="Profile avatar"
+            />
           </div>
 
           <div className="profile-page__heroContent">
@@ -245,8 +290,7 @@ const MyProfilePage: React.FC = () => {
 
             <p className="profile-page__heroBio">
               {user
-                ? customBio ||
-                  user.bio ||
+                ? user.bio ||
                   "This user has not added a bio yet. You can update this in Settings."
                 : ""}
             </p>
@@ -268,11 +312,17 @@ const MyProfilePage: React.FC = () => {
                   figmaUrl={project.figma_link}
                   previewUrl={project.preview_url}
                   contentType={project.contents}
+                  isPublic={project.is_public}
+                  onToggleVisibility={() => handleToggleVisibility(project)}
+                  onDelete={() => handleDeleteProject(projectIdFor(project))}
                   onPreviewClick={() => {
                     setSelectedProject(project);
                     setIsModalVisible(true);
                     setIsModalClosing(false);
                   }}
+                  onAnalyzeClick={() =>
+                    navigate(`/analysis/${project.project_id || project.id || index}`)
+                  }
                 />
               ))
             ) : (
@@ -333,7 +383,7 @@ const MyProfilePage: React.FC = () => {
                   </div>
                   {selectedProject.figma_link && (
                     <a
-                      className="profile-page__figmaAction"
+                      className="profile-page__figmaAction button button--medium button--secondary"
                       href={selectedProject.figma_link}
                       target="_blank"
                       rel="noreferrer"

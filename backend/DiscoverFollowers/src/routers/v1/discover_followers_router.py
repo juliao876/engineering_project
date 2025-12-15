@@ -8,7 +8,7 @@ from src.services.Services import Services
 
 
 
-discover_followers_router = APIRouter(prefix="/D&F", tags=["Discover & Followers"])
+discover_followers_router = APIRouter(prefix="/DF", tags=["Discover & Followers"])
 
 
 @cbv(discover_followers_router)
@@ -49,6 +49,19 @@ class DiscoverFollowers:
 
         service = Services(self.db)
         return service.get_following(username)
+
+    @discover_followers_router.get("/users/{username}/follow-status")
+    def get_follow_status(self, username: str, request: Request):
+
+        token = request.cookies.get("token")
+        if not token:
+            raise HTTPException(status_code=401, detail="Not authenticated")
+
+        user_data = get_user_data(token)
+        user_id = user_data.get("id") or user_data.get("user_id")
+
+        service = Services(self.db)
+        return service.get_follow_status(user_id, username)
 
     @discover_followers_router.get("/feed/following")
     def get_following_feed(self, request: Request):

@@ -66,6 +66,7 @@ const RegisterPage: React.FC = () => {
               type="password"
               icon={<img src={Eyecon} alt="" aria-hidden />}
               iconPosition="right"
+              enablePasswordToggle
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required

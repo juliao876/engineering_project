@@ -1,12 +1,16 @@
+import json
+import os
+from datetime import datetime
+
+import requests
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-import json
-import requests
-from datetime import datetime
 
 from src.database.models.Analysis import Analysis
 
-FIGMA_SERVICE_URL = "http://localhost:6702/api/v1"   # Docker DNS name OR localhost depending on env
+FIGMA_SERVICE_URL = os.getenv("FIGMA_SERVICE_URL", "http://figma-service:6702/api/v1")
+PROJECTS_SERVICE_URL = os.getenv("PROJECTS_SERVICE_URL", "http://project-service:6701/api/v1")
+PROJECTS_SERVICE_FALLBACK = "http://project-service:6701/api/v1"
 
 
 class Services:
@@ -16,8 +20,18 @@ class Services:
     # ======================================================
     #                RUN ANALYSIS ENTRYPOINT
     # ======================================================
-    def run_analysis(self, project_id: int, device: str, figma_data: dict = None,
-                     token: str = None, figma_url: str = None):
+    def run_analysis(
+        self,
+        project_id: int,
+        device: str,
+        figma_data: dict = None,
+        token: str = None,
+        figma_url: str = None,
+    ):
+
+        resolved_figma_url = figma_url
+        if not figma_data and not resolved_figma_url:
+            resolved_figma_url = self._get_project_figma_url(project_id, token)
 
         # ---------------------------------------------
         # CASE 1 — user gives raw figma_data directly
@@ -29,11 +43,11 @@ class Services:
         # ---------------------------------------------
         # CASE 2 — user gives figma_url → call figma-service
         # ---------------------------------------------
-        elif figma_url:
+        elif resolved_figma_url:
             if not token:
-                raise HTTPException(400, "Authorization token required when using figma_url")
+                raise HTTPException(401, "Authorization token required when using figma_url")
 
-            payload = {"file_url": figma_url}
+            payload = {"file_url": resolved_figma_url}
             headers = {"Authorization": f"Bearer {token}"}
 
             try:
@@ -96,12 +110,55 @@ class Services:
             "issues": analysis_result["issues"],
         }
 
+    def _get_project_figma_url(self, project_id: int, token: str | None = None) -> str:
+        """Fetch the project's Figma link from the Projects service."""
+
+        def _call_projects(url: str):
+            return requests.get(
+                f"{url}/project/details/{project_id}",
+                headers={"Authorization": f"Bearer {token}"} if token else None,
+                timeout=5,
+            )
+
+        try:
+            response = _call_projects(PROJECTS_SERVICE_URL)
+        except Exception:
+            # Sometimes the compose host is registered as project-service – retry with it
+            try:
+                response = _call_projects(PROJECTS_SERVICE_FALLBACK)
+            except Exception as exc:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Could not reach Projects service: {exc}",
+                )
+
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=response.status_code,
+                detail="Could not fetch project details",
+            )
+
+        payload = (
+            response.json()
+            if response.headers.get("content-type", "").startswith("application/json")
+            else {}
+        )
+        project = payload.get("project") if isinstance(payload, dict) else None
+        figma_link = None
+        if isinstance(project, dict):
+            figma_link = project.get("figma_link")
+        elif isinstance(payload, dict):
+            figma_link = payload.get("figma_link")
+
+        if not figma_link:
+            raise HTTPException(404, "No Figma link configured for this project")
+
+        return figma_link
+
     # ======================================================
     #            FIGMA DATA ANALYSIS CORE ENGINE
     # ======================================================
     def _analyze_figma_data(self, figma_data: dict, device: str):
-        # ---- (TWÓJ KOD ANALIZY BEZ ZMIAN) ----
-        # Wklejam cały, nic nie zmieniam strukturalnie
         def walk(node):
             yield node
             for child in node.get("children", []):
@@ -112,51 +169,147 @@ class Services:
 
         issues = []
 
-        BUTTON_MIN_HEIGHT = 42
-        FONT_MIN_DESKTOP = 14
-        FONT_MIN_MOBILE = 16
-        CONTRAST_MIN = 4.5
-        TOUCH_MIN = 44
-
-        metrics = {
-            "button_size": {"min_detected": None, "expected_min": BUTTON_MIN_HEIGHT, "status": "ok"},
-            "button_spacing": {"min_spacing": None, "recommended_min": None, "status": "ok"},
-            "contrast_ratio": {"min_ratio": None, "required_min": CONTRAST_MIN, "status": "ok"},
-            "font_size": {
-                "min_detected": None,
-                "recommended_min": FONT_MIN_DESKTOP if device == "desktop" else FONT_MIN_MOBILE,
-                "status": "ok"
-            },
-            "touch_target": None,
-            "layout_depth": {"avg_depth": 0, "recommended_max": 5, "status": "ok"},
+        BUTTON_THRESHOLDS = {
+            "high": 72,  # High priority button >= 72px
+            "medium": 60,  # Medium priority button >= 60px
+            "low": 48,  # Low priority button >= 48px
         }
 
-        # -------- BUTTONS --------
-        min_button_height = None
-        for node in all_nodes:
-            if "button" in node.get("name", "").lower() or node.get("type") in ["RECTANGLE", "FRAME"]:
-                box = node.get("absoluteBoundingBox")
-                if box:
-                    h = box.get("height")
-                    if h:
-                        if min_button_height is None or h < min_button_height:
-                            min_button_height = h
-                        if h < BUTTON_MIN_HEIGHT:
-                            issues.append({
-                                "issue": "Button height too small",
-                                "expected_min": BUTTON_MIN_HEIGHT,
-                                "actual": h,
-                                "node": node.get("id")
-                            })
+        SPACING_RANGES = {
+            "high": (12, 24),
+            "medium": (24, 40),
+            "low": (32, 48),
+        }
 
-        metrics["button_size"]["min_detected"] = min_button_height
-        if min_button_height and min_button_height < BUTTON_MIN_HEIGHT:
+        CONTRAST = {"normal": 4.5, "large": 3.0}
+
+        FONT_MIN = {"desktop": 14, "mobile": 11}
+        FONT_IDEAL = {"desktop": (14, 17), "mobile": (15, 17)}
+
+        TOUCH_MIN_CONTROL = 44
+        TOUCH_MIN_TEXT = 30
+
+        LAYOUT_MAX_DEPTH = 3
+
+        metrics = {
+            "button_size": {
+                "min_detected": None,
+                "expected_min": BUTTON_THRESHOLDS["low"],
+                "priority_breakdown": {},
+                "status": "ok",
+            },
+            "button_spacing": {
+                "min_spacing": None,
+                "recommended_min": None,
+                "status": "ok",
+                "priority_breakdown": {},
+            },
+            "contrast_ratio": {
+                "min_ratio": None,
+                "required_min_normal": CONTRAST["normal"],
+                "required_min_large": CONTRAST["large"],
+                "status": "ok",
+            },
+            "font_size": {
+                "min_detected": None,
+                "recommended_min": FONT_MIN[device],
+                "ideal_range": FONT_IDEAL[device],
+                "status": "ok",
+            },
+            "touch_target": None,
+            "layout_depth": {"avg_depth": 0, "recommended_max": LAYOUT_MAX_DEPTH, "status": "ok"},
+        }
+
+        def classify_priority(node_name: str):
+            name = (node_name or "").lower()
+            if "primary" in name or "high" in name:
+                return "high"
+            if "secondary" in name or "medium" in name:
+                return "medium"
+            return "low"
+
+        button_boxes = []
+        # -------- BUTTONS --------
+        for node in all_nodes:
+            node_name = node.get("name", "")
+            if "button" in node_name.lower() or node.get("type") in ["RECTANGLE", "FRAME"]:
+                box = node.get("absoluteBoundingBox")
+                if box and box.get("height") and box.get("width"):
+                    priority = classify_priority(node_name)
+                    h = box.get("height")
+                    button_boxes.append((box, priority, node))
+
+                    breakdown = metrics["button_size"]["priority_breakdown"].setdefault(
+                        priority, {"min_detected": None, "expected_min": BUTTON_THRESHOLDS[priority]}
+                    )
+
+                    if breakdown["min_detected"] is None or h < breakdown["min_detected"]:
+                        breakdown["min_detected"] = h
+
+                    if metrics["button_size"]["min_detected"] is None or h < metrics["button_size"]["min_detected"]:
+                        metrics["button_size"]["min_detected"] = h
+
+                    if h < BUTTON_THRESHOLDS[priority]:
+                        issues.append(
+                            {
+                                "issue": f"{priority.title()} priority button height too small",
+                                "expected_min": BUTTON_THRESHOLDS[priority],
+                                "actual": h,
+                                "node": node.get("id"),
+                            }
+                        )
+
+        # Determine button spacing between detected buttons
+        def _distance(box_a, box_b):
+            ax1, ay1 = box_a.get("x", 0), box_a.get("y", 0)
+            ax2, ay2 = ax1 + box_a.get("width", 0), ay1 + box_a.get("height", 0)
+
+            bx1, by1 = box_b.get("x", 0), box_b.get("y", 0)
+            bx2, by2 = bx1 + box_b.get("width", 0), by1 + box_b.get("height", 0)
+
+            horiz_gap = max(0, max(bx1 - ax2, ax1 - bx2))
+            vert_gap = max(0, max(by1 - ay2, ay1 - by2))
+            return max(horiz_gap, vert_gap)
+
+        min_spacing = None
+        spacing_priority = None
+        for i in range(len(button_boxes)):
+            for j in range(i + 1, len(button_boxes)):
+                gap = _distance(button_boxes[i][0], button_boxes[j][0])
+                if gap <= 0:
+                    continue
+                if min_spacing is None or gap < min_spacing:
+                    min_spacing = gap
+                    # take stricter priority among the two buttons being compared
+                    priorities = sorted({button_boxes[i][1], button_boxes[j][1]}, key=lambda p: ["high", "medium", "low"].index(p))
+                    spacing_priority = priorities[0] if priorities else None
+
+        if spacing_priority:
+            metrics["button_spacing"]["recommended_min"] = SPACING_RANGES[spacing_priority][0]
+            metrics["button_spacing"]["priority_breakdown"][spacing_priority] = {
+                "min_detected": min_spacing,
+                "recommended_range": SPACING_RANGES[spacing_priority],
+            }
+        if min_spacing is not None:
+            min_spacing = round(min_spacing, 5)
+
+        metrics["button_spacing"]["min_spacing"] = min_spacing
+
+        if spacing_priority and min_spacing is not None and min_spacing < SPACING_RANGES[spacing_priority][0]:
+            metrics["button_spacing"]["status"] = "warning"
+            issues.append(
+                {
+                    "issue": f"Spacing below {spacing_priority} priority guidance",
+                    "expected_min": SPACING_RANGES[spacing_priority][0],
+                    "actual": min_spacing,
+                }
+            )
+
+        if metrics["button_size"]["min_detected"] and metrics["button_size"]["min_detected"] < BUTTON_THRESHOLDS["low"]:
             metrics["button_size"]["status"] = "error"
 
         # -------- FONTS --------
-        recommended_min_font = FONT_MIN_DESKTOP if device == "desktop" else FONT_MIN_MOBILE
         min_font = None
-
         for node in all_nodes:
             if node.get("type") == "TEXT":
                 style = node.get("style", {})
@@ -166,16 +319,18 @@ class Services:
                     if min_font is None or fs < min_font:
                         min_font = fs
 
-                    if fs < recommended_min_font:
-                        issues.append({
-                            "issue": "Font too small",
-                            "expected_min": recommended_min_font,
-                            "actual": fs,
-                            "node": node.get("id")
-                        })
+                    if fs < FONT_MIN[device]:
+                        issues.append(
+                            {
+                                "issue": "Font too small",
+                                "expected_min": FONT_MIN[device],
+                                "actual": fs,
+                                "node": node.get("id"),
+                            }
+                        )
 
         metrics["font_size"]["min_detected"] = min_font
-        if min_font and min_font < recommended_min_font:
+        if min_font and min_font < FONT_MIN[device]:
             metrics["font_size"]["status"] = "warning"
 
         # -------- CONTRAST --------
@@ -205,41 +360,74 @@ class Services:
                     if lowest_contrast is None or r < lowest_contrast:
                         lowest_contrast = r
 
-                    if r < CONTRAST_MIN:
-                        issues.append({
-                            "issue": "Insufficient contrast",
-                            "actual_ratio": round(r, 2),
-                            "required_ratio": CONTRAST_MIN,
-                            "node": node.get("id")
-                        })
+                    if r < CONTRAST["large"]:
+                        issues.append(
+                            {
+                                "issue": "Contrast below large text requirement",
+                                "actual_ratio": round(r, 2),
+                                "required_ratio": CONTRAST["large"],
+                                "node": node.get("id"),
+                            }
+                        )
+                    elif r < CONTRAST["normal"]:
+                        issues.append(
+                            {
+                                "issue": "Contrast below normal text requirement",
+                                "actual_ratio": round(r, 2),
+                                "required_ratio": CONTRAST["normal"],
+                                "node": node.get("id"),
+                            }
+                        )
 
         metrics["contrast_ratio"]["min_ratio"] = lowest_contrast
-        if lowest_contrast and lowest_contrast < CONTRAST_MIN:
+        if lowest_contrast and lowest_contrast < CONTRAST["large"]:
             metrics["contrast_ratio"]["status"] = "error"
+        elif lowest_contrast and lowest_contrast < CONTRAST["normal"]:
+            metrics["contrast_ratio"]["status"] = "warning"
 
         # -------- TOUCH (mobile) --------
         if device == "mobile":
             smallest_touch = None
+            smallest_text_touch = None
             for node in all_nodes:
                 box = node.get("absoluteBoundingBox")
                 if box:
                     w, h = box.get("width"), box.get("height")
                     if w and h:
                         size = min(w, h)
-                        if smallest_touch is None or size < smallest_touch:
-                            smallest_touch = size
-                        if size < TOUCH_MIN:
-                            issues.append({
-                                "issue": "Touch target too small",
-                                "actual": size,
-                                "expected_min": TOUCH_MIN,
-                                "node": node.get("id")
-                            })
+                        if node.get("type") == "TEXT":
+                            if smallest_text_touch is None or size < smallest_text_touch:
+                                smallest_text_touch = size
+                            if size < TOUCH_MIN_TEXT:
+                                issues.append(
+                                    {
+                                        "issue": "Tappable text target too small",
+                                        "actual": size,
+                                        "expected_min": TOUCH_MIN_TEXT,
+                                        "node": node.get("id"),
+                                    }
+                                )
+                        else:
+                            if smallest_touch is None or size < smallest_touch:
+                                smallest_touch = size
+                            if size < TOUCH_MIN_CONTROL:
+                                issues.append(
+                                    {
+                                        "issue": "Touch target too small",
+                                        "actual": size,
+                                        "expected_min": TOUCH_MIN_CONTROL,
+                                        "node": node.get("id"),
+                                    }
+                                )
 
             metrics["touch_target"] = {
                 "min_detected": smallest_touch,
-                "recommended_min": TOUCH_MIN,
-                "status": "ok" if smallest_touch and smallest_touch >= TOUCH_MIN else "error"
+                "recommended_min": TOUCH_MIN_CONTROL,
+                "text_min_detected": smallest_text_touch,
+                "text_recommended_min": TOUCH_MIN_TEXT,
+                "status": "ok"
+                if smallest_touch and smallest_touch >= TOUCH_MIN_CONTROL and smallest_text_touch and smallest_text_touch >= TOUCH_MIN_TEXT
+                else "error",
             }
 
         # -------- DEPTH --------
@@ -252,12 +440,12 @@ class Services:
         avg_depth = sum(depths) / len(depths) if depths else 0
         metrics["layout_depth"]["avg_depth"] = avg_depth
 
-        if avg_depth > 5:
+        if avg_depth > LAYOUT_MAX_DEPTH:
             metrics["layout_depth"]["status"] = "warning"
             issues.append({
                 "issue": "Deep nesting",
                 "avg_depth": avg_depth,
-                "recommended_max": 5
+                "recommended_max": LAYOUT_MAX_DEPTH,
             })
 
         return {"device": device, "metrics": metrics, "issues": issues}
@@ -269,8 +457,13 @@ class Services:
         issues = data["issues"]
         count = len(issues)
 
-        summary = f"Found {count} UX issues."
-        opinion = "Overall layout is acceptable." if count < 3 else "The project needs UX improvements."
+        summary = f"Found {count} UX issues across spacing, readability, and controls."
+        if count == 0:
+            opinion = "Great job! The design meets the key accessibility guidelines."
+        elif count < 3:
+            opinion = "Overall layout is acceptable with minor adjustments recommended."
+        else:
+            opinion = "The project needs UX improvements to meet the provided guidelines."
 
         recommendations = []
         for i in issues:
@@ -327,35 +520,37 @@ class Services:
                 {
                     "name": "Button Size",
                     "rules": [
-                        {"description": "Minimum height 42px", "desktop": 42, "mobile": 42},
-                        {"description": "Touch-friendly spacing 16–24px"},
+                        {"description": "High priority button ≥ 72px", "desktop": 72, "mobile": 72},
+                        {"description": "Medium priority button ≥ 60px", "desktop": 60, "mobile": 60},
+                        {"description": "Low priority button ≥ 48px", "desktop": 48, "mobile": 48},
                     ],
                 },
                 {
                     "name": "Spacing",
                     "rules": [
-                        {"description": "Large spacing: 16–24px"},
-                        {"description": "Medium spacing: 24–40px"},
-                        {"description": "Small spacing: 32–48px"},
+                        {"description": "High priority buttons spacing 12–24px"},
+                        {"description": "Medium priority buttons spacing 24–40px"},
+                        {"description": "Low priority buttons spacing 32–48px"},
                     ],
                 },
                 {
                     "name": "Text Readability",
                     "rules": [
-                        {"description": "Minimum font size 14px desktop"},
-                        {"description": "Line height between 100–180%"},
+                        {"description": "Desktop title ideal 14–17px (min 14px)"},
+                        {"description": "Phone title ideal 15–17px (min 11–12px)"},
                     ],
                 },
                 {
                     "name": "Color Contrast",
                     "rules": [
-                        {"description": "WCAG AA contrast ratio 4.5:1 or higher"},
+                        {"description": "Normal text ratio ≥ 4.5:1"},
+                        {"description": "Large text/UI icons ratio ≥ 3:1"},
                     ],
                 },
                 {
                     "name": "Layout Structure",
                     "rules": [
-                        {"description": "Avoid nesting deeper than 5 levels"},
+                        {"description": "Maintain button hierarchy depth ≤ 3"},
                         {"description": "Ensure clean visual hierarchy"},
                     ],
                 },

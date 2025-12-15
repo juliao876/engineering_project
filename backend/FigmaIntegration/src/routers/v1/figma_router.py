@@ -118,7 +118,7 @@ class Fig:
             raise HTTPException(status_code=401, detail="You must connect Figma first")
 
         service = Services(db)
-        project_data = service.get_projects(
+        project_data, figma_file = service.get_projects(
             file_url=schema.file_url,
             access_token=figma_account.access_token,
             user_id=user_id,
@@ -134,10 +134,10 @@ class Fig:
             user_id,
             figma_url,
             token,
+            figma_file,
             project_data.get("name"),
             project_data.get("preview_url"),
         )
-        print(project_data["project"])
         return {
             "message": "Project imported successfully",
             "figma_link": figma_url,

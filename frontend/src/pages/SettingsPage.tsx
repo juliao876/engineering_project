@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/SettingsPage.css";
 import "../styles/tokens.css";
@@ -14,7 +14,7 @@ import SwitchOn from "../assets/icons/Switch-On.svg";
 import ProfileImage from "../assets/images/Profile.png";
 
 import { AuthAPI } from "../services/api.ts";
-import { loadUserSettings, saveUserSettings } from "../services/userSettings.ts";
+import { saveUserSettings } from "../services/userSettings.ts";
 import { useToast } from "../components/ToastProvider.tsx";
 
 const SettingsPage: React.FC = () => {
@@ -29,6 +29,8 @@ const SettingsPage: React.FC = () => {
   const [surname, setSurname] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -40,6 +42,7 @@ const SettingsPage: React.FC = () => {
   const [bioEnabled, setBioEnabled] = useState(false);
   const [figmaClientId, setFigmaClientId] = useState("");
   const [figmaClientSecret, setFigmaClientSecret] = useState("");
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -51,14 +54,20 @@ const SettingsPage: React.FC = () => {
         setSurname(data?.family_name || "");
         setUsername(data?.username || "");
         setEmail(data?.email || "");
+        setBioText(data?.bio || "");
+        setBioEnabled(Boolean(data?.bio));
+        setFigmaClientId(data?.figma_client_id || "");
+        setFigmaClientSecret(data?.figma_client_secret || "");
+        setAvatarUrl(data?.avatar_url || "");
+        saveUserSettings({
+          bioEnabled: Boolean(data?.bio),
+          bioText: data?.bio || "",
+          figmaClientId: data?.figma_client_id || "",
+          figmaClientSecret: data?.figma_client_secret || "",
+          avatarUrl: data?.avatar_url || "",
+        });
       }
     };
-    const stored = loadUserSettings();
-    setBioText(stored.bioText || "");
-    setBioEnabled(stored.bioEnabled);
-    setFigmaClientId(stored.figmaClientId || "");
-    setFigmaClientSecret(stored.figmaClientSecret || "");
-
     void load();
   }, []);
 
@@ -96,13 +105,6 @@ const SettingsPage: React.FC = () => {
   };
 
   const handleSave = async () => {
-    saveUserSettings({
-      bioEnabled,
-      bioText,
-      figmaClientId,
-      figmaClientSecret,
-    });
-
     setIsSavingProfile(true);
     setStatusMessage(null);
     const payload: Record<string, string> = {};
@@ -110,10 +112,23 @@ const SettingsPage: React.FC = () => {
     if (surname !== undefined) payload.family_name = surname;
     if (username !== undefined) payload.username = username;
     if (email !== undefined) payload.email = email;
+    payload.bio = bioEnabled ? bioText : "";
+    payload.figma_client_id = figmaClientId;
+    payload.figma_client_secret = figmaClientSecret;
 
     const response = await AuthAPI.updateMe(payload);
 
     if (response.ok) {
+      const updated = response.data;
+      setUser(updated);
+      setAvatarUrl(updated?.avatar_url || avatarUrl);
+      saveUserSettings({
+        bioEnabled: !!payload.bio,
+        bioText: payload.bio,
+        figmaClientId,
+        figmaClientSecret,
+        avatarUrl: updated?.avatar_url || avatarUrl,
+      });
       setStatusMessage("Settings saved. Your profile and Figma flows will use these values.");
     } else {
       const detail =
@@ -122,6 +137,40 @@ const SettingsPage: React.FC = () => {
       setStatusMessage(detail);
     }
     setIsSavingProfile(false);
+  };
+
+  const handleAvatarUpload = async (file: File) => {
+    setIsUploadingAvatar(true);
+    const response = await AuthAPI.uploadAvatar(file);
+    if (response.ok) {
+      const updated = response.data;
+      setAvatarUrl(updated?.avatar_url || "");
+      setUser(updated);
+      saveUserSettings({
+        bioEnabled: bioEnabled,
+        bioText,
+        figmaClientId,
+        figmaClientSecret,
+        avatarUrl: updated?.avatar_url || "",
+      });
+      addToast({ message: "Profile photo updated", type: "success" });
+    } else {
+      addToast({
+        message: response.data?.detail || "Could not upload profile photo.",
+        type: "error",
+      });
+    }
+    setIsUploadingAvatar(false);
+  };
+
+  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    void handleAvatarUpload(file);
+  };
+
+  const openAvatarPicker = () => {
+    avatarInputRef.current?.click();
   };
 
   const handleUpdatePassword = async () => {
@@ -213,11 +262,24 @@ const SettingsPage: React.FC = () => {
 
           <div className="settings-page__profileBlock">
             <div className="settings-page__avatar">
-              <img src={ProfileImage} alt="Profile placeholder" />
+              <div
+                className="settings-page__avatarMask"
+                style={{ backgroundImage: `url(${avatarUrl || ProfileImage})` }}
+                aria-label="Profile avatar"
+              />
             </div>
             <div className="settings-page__upload">
-              <Button variant="secondary" size="medium">Upload Profile Picture</Button>
-              <p className="settings-page__helper">Profile photo size</p>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleAvatarChange}
+              />
+              <Button variant="secondary" size="medium" onClick={openAvatarPicker} disabled={isUploadingAvatar}>
+                {isUploadingAvatar ? "Uploading..." : "Upload Profile Picture"}
+              </Button>
+              <p className="settings-page__helper">Profile photo will follow your portfolio mask.</p>
             </div>
           </div>
 
@@ -275,7 +337,7 @@ const SettingsPage: React.FC = () => {
           </div>
 
           <p className="settings-page__helper">
-            Use your own Figma OAuth app credentials to import designs. These values stay in your browser.
+            Use your own Figma OAuth app credentials to import designs. The credentials are saved to your account for reuse.
           </p>
 
           <div className="settings-page__grid">
@@ -329,6 +391,7 @@ const SettingsPage: React.FC = () => {
                   type="password"
                   placeholder="••••••••"
                   value={currentPassword}
+                  enablePasswordToggle
                   onChange={(e) => setCurrentPassword(e.target.value)}
                 />
                 <Input
@@ -336,6 +399,7 @@ const SettingsPage: React.FC = () => {
                   type="password"
                   placeholder="••••••••"
                   value={newPassword}
+                  enablePasswordToggle
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
                 <Input
@@ -343,6 +407,7 @@ const SettingsPage: React.FC = () => {
                   type="password"
                   placeholder="••••••••"
                   value={confirmPassword}
+                  enablePasswordToggle
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>

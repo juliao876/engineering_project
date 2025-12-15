@@ -12,7 +12,3 @@ class AnalysisRequestSchema(BaseModel):
         default=None,
         description="Optional raw Figma JSON payload (skips import from Figma service)"
     )
-    token: Optional[str] = Field(
-        default=None,
-        description="User JWT token — required when using figma_url"
-    )

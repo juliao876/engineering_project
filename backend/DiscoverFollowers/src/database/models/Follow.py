@@ -7,7 +7,7 @@ class Follow(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
 
-    follower_id: int = Field(index=True)      # who follows
-    following_id: int = Field(index=True)     # who is being followed
+    follower_id: int = Field(index=True)
+    following_id: int = Field(index=True)
 
     created_at: datetime = Field(default_factory=datetime.utcnow)

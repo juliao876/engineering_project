@@ -10,3 +10,4 @@ psutil
 PyJWT
 pydantic[email]
 httpx
+python-multipart

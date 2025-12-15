@@ -69,6 +69,7 @@ const LoginPage: React.FC = () => {
               type="password"
               icon={<img src={Eyecon} alt="" />}
               iconPosition="right"
+              enablePasswordToggle
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required

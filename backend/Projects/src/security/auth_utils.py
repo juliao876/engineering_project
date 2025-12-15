@@ -43,7 +43,6 @@ def get_user_data_username(username: str) -> dict:
             data = json.loads(response.read().decode())
             return data
     except URLError:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Auth service unavailable",
-        )
+        # If Auth is temporarily unavailable, degrade gracefully so downstream
+        # endpoints (like public project listing) continue to respond.
+        return None

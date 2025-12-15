@@ -5,22 +5,43 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="014479b6-b732-4572-a9e3-7a43a512b59d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../Analysis/start_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Analysis/start_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AuthUsers/src/routers/v1/auth_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/src/routers/v1/auth_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Colaboration/.env" beforeDir="false" afterPath="$PROJECT_DIR$/../Colaboration/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Colaboration/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../Colaboration/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Colaboration/src/database/models/Rating.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Colaboration/src/database/models/Rating.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Colaboration/src/routers/v1/collaboration_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Colaboration/src/routers/v1/collaboration_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Colaboration/src/schemas/RatingSchema.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Colaboration/src/schemas/RatingSchema.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Colaboration/src/security/auth_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Colaboration/src/security/auth_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Colaboration/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Colaboration/src/services/Services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Colaboration/start_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Colaboration/start_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Discover&amp;Followers/start_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Discover&amp;Followers/start_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Analysis/src/routers/v1/analysis_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Analysis/src/routers/v1/analysis_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Analysis/src/schemas/AnalysisRequestSchema.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Analysis/src/schemas/AnalysisRequestSchema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Analysis/src/security/auth_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Analysis/src/security/auth_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Analysis/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Analysis/src/services/Services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthUsers/src/security/JWT.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthUsers/src/security/JWT.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Discover&amp;Followers/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DiscoverFollowers/.env" beforeDir="false" afterPath="$PROJECT_DIR$/../DiscoverFollowers/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DiscoverFollowers/.idea/Discover&amp;Followers.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../DiscoverFollowers/.idea/Discover&amp;Followers.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DiscoverFollowers/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../DiscoverFollowers/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DiscoverFollowers/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../DiscoverFollowers/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DiscoverFollowers/src/.env" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DiscoverFollowers/src/database/models/Follow.py" beforeDir="false" afterPath="$PROJECT_DIR$/../DiscoverFollowers/src/database/models/Follow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DiscoverFollowers/src/routers/v1/discover_followers_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/../DiscoverFollowers/src/routers/v1/discover_followers_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DiscoverFollowers/src/schemas/FollowerSchema.py" beforeDir="false" afterPath="$PROJECT_DIR$/../DiscoverFollowers/src/schemas/FollowerSchema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DiscoverFollowers/src/security/auth_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/../DiscoverFollowers/src/security/auth_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DiscoverFollowers/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/../DiscoverFollowers/src/services/Services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/routers/v1/project_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/routers/v1/project_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/security/auth_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/security/auth_utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/Services.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/Services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/src/pages/CreateProjectPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/pages/CreateProjectPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/CreateProjectPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/CreateProjectPage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../../docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/components/SearchOverlay.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/components/SearchOverlay.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/pages/AnalysisPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/pages/AnalysisPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/pages/LoginPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/pages/LoginPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/pages/MyProfilePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/pages/MyProfilePage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/pages/RegisterPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/pages/RegisterPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/pages/SettingsPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/pages/SettingsPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/pages/UserProfilePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/pages/UserProfilePage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/services/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/services/api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/services/userSettings.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/services/userSettings.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/AnalysisPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/AnalysisPage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/MyProfilePage.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/MyProfilePage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/Navbar.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/Navbar.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/ProjectCard.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/ProjectCard.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/SearchOverlay.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/SearchOverlay.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/SettingsPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/SettingsPage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/src/styles/Sidebar.css" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/src/styles/Sidebar.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

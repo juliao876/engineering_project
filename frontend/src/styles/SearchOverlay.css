@@ -151,11 +151,24 @@
   cursor: pointer;
   transition: transform 0.16s ease, box-shadow 0.16s ease;
   text-align: left;
+  justify-content: space-between;
 }
 
 .search-results__item:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.search-results__item:focus-visible {
+  outline: 2px solid #c58eb3;
+  outline-offset: 4px;
+}
+
+.search-results__content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
 }
 
 .search-results__avatar {
@@ -172,11 +185,44 @@
 .search-results__name {
   margin: 0;
   font-weight: 700;
+  line-height: 1.2;
 }
 
 .search-results__username {
   margin: 0;
   color: #7b8191;
+}
+
+.search-results__details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.search-results__followButton {
+  border: 1px solid #c58eb3;
+  background: #fff;
+  color: #c58eb3;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  min-width: 96px;
+  transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+}
+
+.search-results__followButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.search-results__followButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.search-results__followButton.is-following {
+  background: #c58eb3;
+  color: #fff;
 }
 
 @media (max-width: 900px) {

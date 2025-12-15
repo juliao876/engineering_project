@@ -115,6 +115,7 @@ const UserProfilePage: React.FC = () => {
     : "Unknown user";
 
   const displayUsername = user ? user.username : "";
+  const avatarSrc = user?.avatar_url || ProfileImage;
 
   const selectedProjectId = selectedProject ? selectedProject.project_id || selectedProject.id : null;
 
@@ -256,7 +257,11 @@ const UserProfilePage: React.FC = () => {
       <main className="profile-page__main">
         <section className="profile-page__hero">
           <div className="profile-page__heroImageWrapper">
-            <img src={ProfileImage} alt="Profile gradient" />
+            <div
+              className="profile-page__heroMaskedImage"
+              style={{ backgroundImage: `url(${avatarSrc})` }}
+              aria-label="Profile avatar"
+            />
           </div>
 
           <div className="profile-page__heroContent">
@@ -374,7 +379,7 @@ const UserProfilePage: React.FC = () => {
                   </div>
                   {selectedProject.figma_link && (
                     <a
-                      className="profile-page__figmaAction"
+                      className="profile-page__figmaAction button button--medium button--secondary"
                       href={selectedProject.figma_link}
                       target="_blank"
                       rel="noreferrer"

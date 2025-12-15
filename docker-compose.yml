@@ -7,6 +7,8 @@ services:
       - "6700:6700"
     env_file:
       - ./backend/AuthUsers/.env
+    volumes:
+      - auth_uploads:/app/src/uploads
 
   auth-db:
     image: postgres:16
@@ -89,6 +91,7 @@ services:
       - "6705:6705"
     env_file:
       - ./backend/DiscoverFollowers/.env
+
   discover-followers-db:
     image: postgres:16
     environment:
@@ -99,11 +102,33 @@ services:
       - "2227:5432"
     volumes:
       - discover_followers_pgdata:/var/lib/postgresql/data
+
+  analysis-service:
+    build: ./backend/Analysis
+    depends_on:
+      - analysis-db
+    ports:
+      - "6703:6703"
+    env_file:
+      - ./backend/Analysis/.env
+
+  analysis-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: analysis_db
+    ports:
+      - "2228:5432"
+    volumes:
+      - analysis_pgdata:/var/lib/postgresql/data
 volumes:
   auth_pgdata:
+  auth_uploads:
   projects_pgdata:
   figma_pgdata:
   project_uploads:
   #tu dopisywac volumy
   collab_pgdata:
   discover_followers_pgdata:
+  analysis_pgdata:

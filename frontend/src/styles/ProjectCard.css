@@ -147,6 +147,19 @@
   align-items: center;
 }
 
+.project-card__analyseButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.project-card__analyseButton img {
+  width: 16px;
+  height: 16px;
+}
+
 .project-card__iconButton {
   border: 1px solid #111111;
   background: #ffffff;
@@ -177,4 +190,48 @@
   margin: 4px 0 0;
   font-size: 12px;
   color: #2a6f29;
+}
+
+.project-card__visibility {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+}
+
+.project-card__visibility.is-public {
+  background: rgba(16, 185, 129, 0.9);
+}
+
+.project-card__visibility.is-private {
+  background: rgba(148, 163, 184, 0.9);
+}
+
+.project-card__ownerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.project-card__textButton {
+  border: none;
+  background: none;
+  color: #4c51bf;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.project-card__textButton:hover,
+.project-card__textButton:focus-visible {
+  text-decoration: underline;
+}
+
+.project-card__deleteButton {
+  color: #e11d48;
 }

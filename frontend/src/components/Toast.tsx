@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "../styles/Toast.css";
 
 export type ToastType = "success" | "error";
@@ -20,21 +20,22 @@ const Toast: React.FC<ToastProps> = ({
 
   const exitAnimationDuration = 520;
 
+  const closeToast = useCallback(() => {
+    if (isClosing) return;
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose?.();
+    }, exitAnimationDuration);
+  }, [exitAnimationDuration, isClosing, onClose]);
+
   useEffect(() => {
     if (!duration) return;
-    const closeTimer = setTimeout(() => {
-      setIsClosing(true);
-    }, duration);
-
-    const cleanupTimer = setTimeout(() => {
-      onClose?.();
-    }, duration + exitAnimationDuration);
+    const closeTimer = setTimeout(closeToast, duration);
 
     return () => {
       clearTimeout(closeTimer);
-      clearTimeout(cleanupTimer);
     };
-  }, [duration, exitAnimationDuration, onClose]);
+  }, [closeToast, duration]);
 
   const progressStyle: React.CSSProperties & { ["--toast-duration"]?: string } = {
     "--toast-duration": `${duration}ms`,
@@ -46,6 +47,14 @@ const Toast: React.FC<ToastProps> = ({
       role="status"
       aria-live="polite"
     >
+      <button
+        type="button"
+        className="toast__closeButton"
+        aria-label="Dismiss notification"
+        onClick={closeToast}
+      >
+        ×
+      </button>
       <div className="toast__message">{message}</div>
       <div className="toast__progress" style={progressStyle} aria-hidden />
     </div>

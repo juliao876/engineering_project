@@ -16,12 +16,30 @@ from src.security.auth_utils import get_user_data_username
 
 
 FIGMA_SERVICE_URL = os.getenv("FIGMA_SERVICE_URL", "http://figma-service:6702/api/v1")
-PROJECTS_SERVICE_URL = os.getenv("PROJECTS_SERVICE_URL", "http://localhost:6701")
+PROJECTS_SERVICE_URL = os.getenv("PROJECTS_SERVICE_URL", "http://project-service:6701")
+AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "http://auth-service:6700")
 UPLOAD_DIR = Path(__file__).resolve().parent.parent.parent / "uploads"
 
 class Services:
     def __init__(self, db: Session):
         self.db = db
+
+    def _fetch_user_profile(self, user_id: int) -> dict:
+        try:
+            response = requests.get(
+                f"{AUTH_SERVICE_URL}/api/v1/auth/user/id/{user_id}", timeout=5
+            )
+            if response.status_code != status.HTTP_200_OK:
+                return {}
+            payload = response.json() or {}
+            return {
+                "user_id": payload.get("user_id") or payload.get("id"),
+                "username": payload.get("username"),
+                "name": payload.get("name"),
+                "family_name": payload.get("family_name"),
+            }
+        except requests.RequestException:
+            return {}
 
     def save_uploaded_file(self, file: UploadFile) -> str:
         UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
@@ -138,12 +156,33 @@ class Services:
     def public_project(self, username:str):
         user_data = get_user_data_username(username)
         if not user_data:
-            raise HTTPException(status_code=401, detail="Could not find user")
+            # When auth is temporarily unavailable we still want to keep the
+            # endpoint responsive, even if we cannot resolve the username.
+            return []
         public_projects = self.db.query(Project).filter(
             Project.user_id == user_data["user_id"],
             Project.is_public == True
         ).all()
         return public_projects
+
+    def list_public_projects(self):
+        projects = self.db.query(Project).filter(Project.is_public == True).all()
+        feed = []
+        for project in projects:
+            profile = self._fetch_user_profile(project.user_id)
+            feed.append({
+                "project_id": project.project_id,
+                "title": project.title,
+                "description": project.description,
+                "is_public": project.is_public,
+                "user_id": project.user_id,
+                "username": profile.get("username"),
+                "contents": project.contents,
+                "figma_link": project.figma_link,
+                "content_type": project.content_type,
+                "preview_url": self.get_project_preview(project),
+            })
+        return feed
 
     def update_project(self, project_id: int, user_id: int, update_data: ProjectUpdateSchema):
         project = self.db.get(Project, project_id)

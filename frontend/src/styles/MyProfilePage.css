@@ -290,13 +290,11 @@
 
 .profile-page__figmaAction {
   align-self: flex-start;
-  background: linear-gradient(90deg, #4349d8, #e97cbb);
-  color: #fff;
-  padding: 10px 14px;
-  border-radius: 8px;
   text-decoration: none;
   font-weight: 700;
-  box-shadow: 0 8px 22px rgba(67, 73, 216, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .profile-page__figmaRating {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Input.css';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -9,6 +9,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   icon?: React.ReactNode;
   iconPosition?: 'left' | 'right';
   className?: string;
+  enablePasswordToggle?: boolean;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -21,10 +22,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       icon,
       iconPosition = 'left',
       className = '',
+      enablePasswordToggle = false,
+      type = 'text',
       ...rest
     },
     ref
   ) => {
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
     const wrapperClasses = [
       'input',
       error ? 'input--error' : '',
@@ -42,6 +47,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       .filter(Boolean)
       .join(' ');
 
+    const isPasswordField = type === 'password';
+    const inputType = enablePasswordToggle && isPasswordField
+      ? (isPasswordVisible ? 'text' : 'password')
+      : type;
+
     return (
       <label className={wrapperClasses}>
         {label && (
@@ -53,9 +63,19 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {icon && iconPosition === 'left' && (
             <span className="input__icon input__icon--left">{icon}</span>
           )}
-          <input ref={ref} className={fieldClasses} {...rest} />
-          {icon && iconPosition === 'right' && (
+          <input ref={ref} className={fieldClasses} type={inputType} {...rest} />
+          {icon && iconPosition === 'right' && !enablePasswordToggle && (
             <span className="input__icon input__icon--right">{icon}</span>
+          )}
+          {enablePasswordToggle && isPasswordField && (
+            <button
+              type="button"
+              className="input__iconButton input__icon input__icon--right"
+              aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
+              onClick={() => setIsPasswordVisible((prev) => !prev)}
+            >
+              {icon || (isPasswordVisible ? '🙈' : '👁')}
+            </button>
           )}
         </div>
         {helperText && (

@@ -4,7 +4,9 @@ import StarEmptyIcon from '../assets/icons/StarEmpty-Icon.svg';
 import StarFullIcon from '../assets/icons/StarFull-Icon.svg';
 import CommentIcon from '../assets/icons/CommentIcon.svg';
 import FigmaIcon from '../assets/icons/FigmaIcon.svg';
+import AnalysisIcon from '../assets/icons/AnalysisIcon.svg';
 import { CollabAPI } from '../services/api.ts';
+import { ButtonSAlt } from './ButtonPresets.tsx';
 
 export interface ProjectCardProps {
   projectId: number;
@@ -16,6 +18,10 @@ export interface ProjectCardProps {
   previewUrl?: string | null;
   contentType?: "figma" | "image" | "video" | string;
   onPreviewClick?: () => void;
+  onAnalyzeClick?: () => void;
+  isPublic?: boolean;
+  onToggleVisibility?: () => void;
+  onDelete?: () => void;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
@@ -28,6 +34,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   previewUrl,
   contentType,
   onPreviewClick,
+  onAnalyzeClick,
+  isPublic,
+  onToggleVisibility,
+  onDelete,
 }) => {
   const [averageRating, setAverageRating] = useState<number>(rating);
 
@@ -73,6 +83,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         onClick={onPreviewClick}
         aria-label="Open project details"
       >
+        {typeof isPublic === "boolean" && (
+          <span
+            className={`project-card__visibility ${isPublic ? "is-public" : "is-private"}`}
+            aria-label={`Project is ${isPublic ? "public" : "private"}`}
+          >
+            {isPublic ? "Public" : "Private"}
+          </span>
+        )}
         <div className="project-card__media">
           {contentType === "video" && previewUrl ? (
             <video src={previewUrl} muted playsInline />
@@ -107,6 +125,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
 
         <div className="project-card__actions">
+          {onAnalyzeClick && (
+            <ButtonSAlt className="project-card__analyseButton" type="button" onClick={onAnalyzeClick}>
+              <img src={AnalysisIcon} alt="Analyse" />
+              Analyse
+            </ButtonSAlt>
+          )}
           <button type="button" className="project-card__iconButton">
             <img src={CommentIcon} alt="Comments" />
             {commentsCount > 0 && (
@@ -125,6 +149,21 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             </a>
           )}
         </div>
+
+        {(onToggleVisibility || onDelete) && (
+          <div className="project-card__ownerActions">
+            {onToggleVisibility && typeof isPublic === "boolean" && (
+              <button type="button" className="project-card__textButton" onClick={onToggleVisibility}>
+                {isPublic ? "Make private" : "Make public"}
+              </button>
+            )}
+            {onDelete && (
+              <button type="button" className="project-card__textButton project-card__deleteButton" onClick={onDelete}>
+                Delete
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </article>
   );

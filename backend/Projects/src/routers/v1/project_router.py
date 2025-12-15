@@ -89,6 +89,10 @@ class Projects():
     def delete_project(self, project_id: int, request: Request, db: Session = Depends(get_db)):
         token = request.cookies.get("token")
         if not token:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                token = auth_header.split(" ")[1]
+        if not token:
             raise HTTPException(status_code=401, detail="Not authenticated")
         user_data = get_user_data(token)
         user_id = user_data.get("user_id")
@@ -140,6 +144,17 @@ class Projects():
         ]
 
         return {"projects": projects_payload}
+
+    @project_router.get("/public/all")
+    def get_all_public_projects(self, db: Session = Depends(get_db)):
+        service = Services(db)
+        try:
+            projects = service.list_public_projects()
+        except Exception as exc:
+            # Fail open with an empty list so dependent feeds still respond
+            print(f"[!] Failed to list public projects: {exc}")
+            projects = []
+        return {"projects": projects}
     @project_router.get("/details/{project_id}")
     def get_project_details(self, project_id: int, db: Session = Depends(get_db)):
         service = Services(db)
@@ -148,6 +163,10 @@ class Projects():
     @project_router.patch("/update_project/{project_id}")
     def update_project(self, project_id: int, update_data: ProjectUpdateSchema, request: Request,  db: Session = Depends(get_db)):
         token = request.cookies.get("token")
+        if not token:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                token = auth_header.split(" ")[1]
         if not token:
             raise HTTPException(status_code=401, detail="Not authenticated")
         user_data = get_user_data(token)
@@ -162,7 +181,8 @@ class Projects():
                 "description": updated.description,
                 "is_public": updated.is_public,
                 "figma_link": updated.figma_link,
-                "contents": updated.contents
+                "contents": updated.contents,
+                "preview_url": service.get_project_preview(updated),
             }
         }
     @project_router.put("/{user_id}/connect-figma")

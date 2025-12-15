@@ -1,5 +1,6 @@
 import React from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
+import Cursor from "./components/Cursor.tsx";
 
 import WelcomePage from './pages/WelcomePage.tsx';
 import LoginPage from './pages/LoginPage.tsx';
@@ -9,6 +10,8 @@ import CreateProjectPage from "./pages/CreateProjectPage.tsx";
 import UserProfilePage from "./pages/UserProfilePage.tsx";
 import FigmaCallbackPage from "./pages/FigmaCallbackPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
+import AnalysisPage from "./pages/AnalysisPage.tsx";
+import DiscoverPage from "./pages/DiscoverPage.tsx";
 
 // Most important wrapper
 function WelcomeWithNavigation() {
@@ -23,16 +26,21 @@ function WelcomeWithNavigation() {
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<WelcomeWithNavigation />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/profile" element={<MyProfilePage />} />
-      <Route path="/projects/create" element={<CreateProjectPage />} />
-      <Route path="/users/:username" element={<UserProfilePage />} />
-      <Route path="/figma/callback" element={<FigmaCallbackPage />} />
-      <Route path="/settings" element={<SettingsPage />} />
-    </Routes>
+    <>
+      <Cursor />
+      <Routes>
+        <Route path="/" element={<WelcomeWithNavigation />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/profile" element={<MyProfilePage />} />
+        <Route path="/projects/create" element={<CreateProjectPage />} />
+        <Route path="/users/:username" element={<UserProfilePage />} />
+        <Route path="/figma/callback" element={<FigmaCallbackPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/analysis/:projectId" element={<AnalysisPage />} />
+        <Route path="/discover" element={<DiscoverPage />} />
+      </Routes>
+    </>
   );
 }
 

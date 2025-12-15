@@ -28,6 +28,23 @@
   pointer-events: auto;
 }
 
+.toast__closeButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  color: #475569;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.toast__closeButton:hover,
+.toast__closeButton:focus-visible {
+  color: #0f172a;
+}
+
 .toast--success {
   border-color: rgba(34, 197, 94, 0.15);
 }
