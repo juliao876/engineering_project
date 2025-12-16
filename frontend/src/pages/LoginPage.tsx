@@ -9,7 +9,7 @@ import Eyecon from "../assets/icons/Eyecon.png";
 import Logo from "../assets/icons/Logo.svg";
 import LoginImage from "../assets/images/LoginImage.png";
 
-import { AuthAPI } from "../services/api.ts";
+import { AuthAPI, NotificationsAPI } from "../services/api.ts";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/ToastProvider.tsx";
 
@@ -35,7 +35,17 @@ const LoginPage: React.FC = () => {
         localStorage.setItem("token", receivedToken);
       }
       addToast({ message: "Successfully logged in", type: "success" });
-      setTimeout(() => navigate("/profile"), 500);
+      setTimeout(async () => {
+        const notifications = await NotificationsAPI.getNotifications();
+        if (notifications.ok && Array.isArray(notifications.data)) {
+          const unread = notifications.data.filter((item: any) => !item.is_read).length;
+          if (unread > 0) {
+            const capped = unread > 99 ? "99+" : unread.toString();
+            addToast({ message: `You have ${capped} unread notifications`, type: "info" });
+          }
+        }
+        navigate("/profile");
+      }, 500);
     } else {
       addToast({
         message: res.data?.detail || res.data?.message || "Login failed",

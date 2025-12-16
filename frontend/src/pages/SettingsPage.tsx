@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../styles/SettingsPage.css";
 import "../styles/tokens.css";
 
-import Sidebar, { SidebarItemId } from "../components/Sidebar.tsx";
+import Sidebar from "../components/Sidebar.tsx";
 import Navbar from "../components/Navbar.tsx";
 import SearchOverlay from "../components/SearchOverlay.tsx";
 import Input from "../components/Input.tsx";
@@ -16,6 +16,7 @@ import ProfileImage from "../assets/images/Profile.png";
 import { AuthAPI } from "../services/api.ts";
 import { saveUserSettings } from "../services/userSettings.ts";
 import { useToast } from "../components/ToastProvider.tsx";
+import useSidebarNavigation from "../hooks/useSidebarNavigation.ts";
 
 const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -82,27 +83,9 @@ const SettingsPage: React.FC = () => {
     navigate("/login");
   };
 
-  const handleSidebarSelect = (itemId: SidebarItemId) => {
-    switch (itemId) {
-      case "profile":
-        navigate("/profile");
-        break;
-      case "create":
-        navigate("/projects/create");
-        break;
-      case "home":
-        navigate("/");
-        break;
-      case "search":
-        setIsSearchOpen(true);
-        break;
-      case "settings":
-        navigate("/settings");
-        break;
-      default:
-        break;
-    }
-  };
+  const handleSidebarSelect = useSidebarNavigation({
+    openSearch: () => setIsSearchOpen(true),
+  });
 
   const handleSave = async () => {
     setIsSavingProfile(true);

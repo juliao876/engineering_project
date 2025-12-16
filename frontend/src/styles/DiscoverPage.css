@@ -51,20 +51,20 @@
 }
 
 .discover-page__grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .discover-card {
   background: rgba(255, 255, 255, 0.85);
-  border-radius: 18px;
-  padding: 20px;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 11px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(6px);
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 8px;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -77,12 +77,12 @@
 .discover-card__rating {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .discover-card__stars {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   line-height: 0;
 }
 
@@ -96,7 +96,7 @@
   background: #f3f4f6;
   border-radius: 14px;
   overflow: hidden;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 5 / 3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -132,7 +132,7 @@
 
 .discover-card__body h3 {
   margin: 0 0 6px;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .discover-card__body p {
@@ -148,8 +148,8 @@
 }
 
 .discover-card__authorAvatar {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: #e5e7eb;
   display: flex;
@@ -296,6 +296,9 @@
   padding: 0;
   margin: 0;
   list-style: none;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 6px;
 }
 
 .discover-page__commentRow {

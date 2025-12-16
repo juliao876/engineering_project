@@ -12,7 +12,6 @@ class Rating(SQLModel, table=True):
 
     stars: int = Field(default=0)  # 0–5 stars
 
-    # Backwards-compatible alias so legacy code referencing "value" keeps working
     @property
     def value(self) -> int:
         return self.stars

@@ -12,6 +12,7 @@ import FigmaCallbackPage from "./pages/FigmaCallbackPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
 import AnalysisPage from "./pages/AnalysisPage.tsx";
 import DiscoverPage from "./pages/DiscoverPage.tsx";
+import NotificationsPage from "./pages/NotificationsPage.tsx";
 
 // Most important wrapper
 function WelcomeWithNavigation() {
@@ -30,6 +31,7 @@ function App() {
       <Cursor />
       <Routes>
         <Route path="/" element={<WelcomeWithNavigation />} />
+        <Route path="/welcome" element={<WelcomeWithNavigation />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/profile" element={<MyProfilePage />} />
@@ -39,6 +41,7 @@ function App() {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/analysis/:projectId" element={<AnalysisPage />} />
         <Route path="/discover" element={<DiscoverPage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
       </Routes>
     </>
   );

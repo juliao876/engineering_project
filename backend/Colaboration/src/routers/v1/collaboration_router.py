@@ -7,6 +7,7 @@ from src.database.db_connection import get_db
 from src.services.Services import Services
 
 from src.schemas.CommentSchema import CommentSchema, ReplySchema
+from src.schemas.NotificationSchema import NotificationCreateSchema
 from src.schemas.RatingSchema import RatingSchema
 
 collaboration_router = APIRouter(prefix="/collab", tags=["Collaboration"])
@@ -110,19 +111,23 @@ class Collaboration:
         user_id = user_data.get("id") or user_data.get("user_id")
 
         service = Services(self.db)
-        notifications = service.get_notifications(user_id)
-        return [
-            {
-                "id": n.id,
-                "user_id": n.user_id,
-                "title": n.title,
-                "message": n.message,
-                "is_read": n.is_read,
-                "created_at": n.created_at,
-                "read_at": n.read_at,
-            }
-            for n in notifications
-        ]
+        return service.get_notifications(user_id)
+
+    @collaboration_router.post("/notifications")
+    def create_notification(self, payload: NotificationCreateSchema, request: Request):
+        token = _extract_token(request)
+        if not token:
+            raise HTTPException(status_code=401, detail="Not authenticated")
+
+        service = Services(self.db)
+        return service.create_notification(
+            user_id=payload.user_id,
+            notification_type=payload.type,
+            message=payload.message,
+            project_id=payload.project_id,
+            actor_id=payload.actor_id,
+            actor_username=payload.actor_username,
+        )
     @collaboration_router.post("/notifications/read/{notification_id}")
     def mark_notification_read(self, notification_id: int, request: Request):
         token = _extract_token(request)
@@ -134,3 +139,15 @@ class Collaboration:
 
         service = Services(self.db)
         return service.mark_notification_as_read(notification_id, user_id)
+
+    @collaboration_router.delete("/notifications/{notification_id}")
+    def delete_notification(self, notification_id: int, request: Request):
+        token = _extract_token(request)
+        if not token:
+            raise HTTPException(status_code=401, detail="Not authenticated")
+
+        user_data = get_user_data(token)
+        user_id = user_data.get("id") or user_data.get("user_id")
+
+        service = Services(self.db)
+        return service.delete_notification(notification_id, user_id)

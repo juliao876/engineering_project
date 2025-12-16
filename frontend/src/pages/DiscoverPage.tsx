@@ -3,7 +3,7 @@ import "../styles/DiscoverPage.css";
 import "../styles/tokens.css";
 
 import Navbar from "../components/Navbar.tsx";
-import Sidebar, { SidebarItemId } from "../components/Sidebar.tsx";
+import Sidebar from "../components/Sidebar.tsx";
 import SearchOverlay from "../components/SearchOverlay.tsx";
 import Rating from "../components/Rating.tsx";
 import Button from "../components/Button.tsx";
@@ -11,9 +11,10 @@ import Button from "../components/Button.tsx";
 import StarEmptyIcon from "../assets/icons/StarEmpty-Icon.svg";
 import StarFullIcon from "../assets/icons/StarFull-Icon.svg";
 
-import { AuthAPI, CollabAPI, FollowAPI } from "../services/api.ts";
+import { AuthAPI, CollabAPI, FollowAPI, ProjectsAPI } from "../services/api.ts";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/ToastProvider.tsx";
+import useSidebarNavigation from "../hooks/useSidebarNavigation.ts";
 
 interface CommentItem {
   id: number;
@@ -86,27 +87,9 @@ const DiscoverPage: React.FC = () => {
     navigate("/login");
   };
 
-  const handleSidebarSelect = (itemId: SidebarItemId) => {
-    switch (itemId) {
-      case "home":
-        navigate("/discover");
-        break;
-      case "profile":
-        navigate("/profile");
-        break;
-      case "create":
-        navigate("/projects/create");
-        break;
-      case "search":
-        setIsSearchOpen(true);
-        break;
-      case "settings":
-        navigate("/settings");
-        break;
-      default:
-        break;
-    }
-  };
+  const handleSidebarSelect = useSidebarNavigation({
+    openSearch: () => setIsSearchOpen(true),
+  });
 
   const loadProjects = useCallback(
     async (tab: FeedTab) => {
@@ -118,7 +101,7 @@ const DiscoverPage: React.FC = () => {
             : await FollowAPI.getFollowingFeed();
 
         if (response.ok) {
-          const data = response.data?.feed ?? response.data ?? [];
+          const data = response.data?.projects ?? response.data?.feed ?? response.data ?? [];
           const normalized = (Array.isArray(data) ? data : []).map((item) => ({
             ...item,
             preview_url: item.preview_url ?? item.preview ?? item.cover_url ?? null,
@@ -187,7 +170,21 @@ const DiscoverPage: React.FC = () => {
     setIsCommentsLoading(true);
     const response = await CollabAPI.getProjectComments(selectedProjectId);
     if (response.ok) {
-      setComments(response.data?.comments ?? response.data ?? []);
+      const incomingComments = response.data?.comments ?? response.data ?? [];
+      setComments(incomingComments);
+      const count = Array.isArray(incomingComments) ? incomingComments.length : 0;
+      setProjects((prev) =>
+        prev.map((project) =>
+          (project.project_id || project.id) === selectedProjectId
+            ? { ...project, comments_count: count }
+            : project,
+        ),
+      );
+      setSelectedProject((prev) =>
+        prev && (prev.project_id === selectedProjectId || prev.id === selectedProjectId)
+          ? { ...prev, comments_count: count }
+          : prev,
+      );
     }
     setIsCommentsLoading(false);
   }, [selectedProjectId]);
@@ -298,19 +295,10 @@ const DiscoverPage: React.FC = () => {
                 <div className="discover-card__body">
                   <h3>{project.title}</h3>
                   <p>{project.description || "No description provided."}</p>
-
-                  <div className="discover-card__meta">
-                    <div className="discover-card__authorAvatar">
-                      <span>{(project.username || "?").charAt(0).toUpperCase()}</span>
-                    </div>
-                    <div>
-                      <div className="discover-card__author">{project.username || "Unknown"}</div>
-                      <div className="discover-card__counts">
-                        <span>{project.rating_count ?? 0} ratings</span>
-                        <span> · </span>
-                        <span>{project.comments_count ?? 0} comments</span>
-                      </div>
-                    </div>
+                  <div className="discover-card__counts">
+                    <span>{project.rating_count ?? 0} ratings</span>
+                    <span> · </span>
+                    <span>{project.comments_count ?? 0} comments</span>
                   </div>
                 </div>
               </article>

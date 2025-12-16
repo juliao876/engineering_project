@@ -6,7 +6,7 @@ import ProfileImage from "../assets/images/Profile.png";
 import StarEmptyIcon from "../assets/icons/StarEmpty-Icon.svg";
 import StarFullIcon from "../assets/icons/StarFull-Icon.svg";
 
-import Sidebar, { SidebarItemId } from "../components/Sidebar.tsx";
+import Sidebar from "../components/Sidebar.tsx";
 import ProjectCard from "../components/ProjectCard.tsx";
 import Button from "../components/Button.tsx";
 import Navbar from "../components/Navbar.tsx";
@@ -16,6 +16,7 @@ import { useToast } from "../components/ToastProvider.tsx";
 
 import { AuthAPI, CollabAPI, ProjectsAPI } from "../services/api.ts";
 import { useNavigate } from "react-router-dom";
+import useSidebarNavigation from "../hooks/useSidebarNavigation.ts";
 
 type CommentItem = {
   id: number;
@@ -63,27 +64,9 @@ const MyProfilePage: React.FC = () => {
     navigate("/login");
   };
 
-  const handleSidebarSelect = (itemId: SidebarItemId) => {
-    switch (itemId) {
-      case "profile":
-        navigate("/profile");
-        break;
-      case "create":
-        navigate("/projects/create");
-        break;
-      case "home":
-        navigate("/");
-        break;
-      case "search":
-        setIsSearchOpen(true);
-        break;
-      case "settings":
-        navigate("/settings");
-        break;
-      default:
-        break;
-    }
-  };
+  const handleSidebarSelect = useSidebarNavigation({
+    openSearch: () => setIsSearchOpen(true),
+  });
 
   const projectIdFor = useCallback((project: any) => project?.project_id || project?.id, []);
 

@@ -197,9 +197,10 @@
   background: #ffffff;
   border-radius: 16px;
   width: min(1180px, 92vw);
+  max-height: 92vh;
   box-shadow: 0 24px 80px rgba(15, 23, 42, 0.3);
   position: relative;
-  overflow: hidden;
+  overflow: auto;
   transform: translateY(60%);
   opacity: 0;
   animation: profile-modal-bounce-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
@@ -312,6 +313,8 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: 420px;
+  overflow: hidden;
 }
 
 .profile-page__commentsHeader {
@@ -333,6 +336,9 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 6px;
 }
 
 .profile-page__commentRow {

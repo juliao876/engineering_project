@@ -14,12 +14,13 @@ AUTH_BASE_URL = os.getenv("AUTH_SERVICE_URL", "http://auth-service:6700")
 AUTH_API_URL = f"{AUTH_BASE_URL}/api/v1/auth"
 PROJECTS_BASE_URL = os.getenv("PROJECTS_SERVICE_URL", "http://project-service:6701/api/v1")
 COLLAB_BASE_URL = os.getenv("COLLAB_SERVICE_URL", "http://collab-service:6704/api/v1")
+COLLAB_API_URL = f"{COLLAB_BASE_URL}/collab"
 
 class Services:
     def __init__(self, db: Session):
         self.db = db
 
-    def follow_user(self, follower_id: int, data: FollowerSchema):
+    def follow_user(self, follower_id: int, data: FollowerSchema, token: str | None = None, follower_profile: dict | None = None):
         following_id = data.following_id   # ✔ FIX
 
         if follower_id == following_id:
@@ -46,7 +47,55 @@ class Services:
         self.db.add(new_follow)
         self.db.commit()
 
+        follower_info = follower_profile or self._fetch_user_profile(follower_id)
+        self._send_notification(
+            target_user_id=following_id,
+            follower=follower_info,
+            token=token,
+        )
+
         return {"message": "Followed"}
+
+    def _fetch_user_profile(self, user_id: int):
+        try:
+            response = requests.get(f"{AUTH_API_URL}/user/id/{user_id}")
+            if response.status_code == 200:
+                return response.json()
+        except requests.RequestException:
+            return None
+        return None
+
+    def _send_notification(self, target_user_id: int, follower: dict | None, token: str | None):
+        if not target_user_id:
+            return
+
+        if follower:
+            follower_name = follower.get("username") or follower.get("name") or "Someone"
+            follower_id = follower.get("user_id") or follower.get("id")
+            follower_username = follower.get("username")
+        else:
+            follower_name = "Someone"
+            follower_id = None
+            follower_username = None
+        message = f"New follower: {follower_name} just started following you"
+
+        payload = {
+            "user_id": target_user_id,
+            "type": "follow",
+            "message": message,
+            "actor_id": follower_id,
+            "actor_username": follower_username,
+        }
+
+        headers = {}
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+
+        try:
+            requests.post(f"{COLLAB_API_URL}/notifications", json=payload, headers=headers, timeout=5)
+        except requests.RequestException:
+            # We don't want to block follow action if notification fails
+            pass
 
     def get_follow_status(self, follower_id: int, username: str):
         user_data = get_user_data_username(username)
@@ -77,7 +126,7 @@ class Services:
         if not user_data:
             raise HTTPException(status_code=404, detail="User not found")
 
-        user_id = user_data.get("user_id")
+        user_id = user_data.get("user_id") or user_data.get("id")
         rows = (
             self.db.query(Follow)
             .filter(Follow.following_id == user_id)
@@ -107,7 +156,7 @@ class Services:
         if not user_data:
             raise HTTPException(status_code=404, detail="User not found")
 
-        user_id = user_data.get("user_id")
+        user_id = user_data.get("user_id") or user_data.get("id")
         rows = (
             self.db.query(Follow)
             .filter(Follow.follower_id == user_id)
@@ -174,7 +223,7 @@ class Services:
 
         projects = []
         try:
-            r = requests.get(f"{PROJECTS_BASE_URL}/project/public/all")
+            r = requests.get(f"{PROJECTS_BASE_URL}/project/public")
             if r.status_code == 200:
                 projects = r.json().get("projects", [])
             else:
@@ -188,7 +237,7 @@ class Services:
         for p in projects:
             project_id = p.get("project_id")
             try:
-                rating_res = requests.get(f"{COLLAB_BASE_URL}/projects/{project_id}/rating")
+                rating_res = requests.get(f"{COLLAB_API_URL}/projects/{project_id}/rating")
                 rating_data = rating_res.json()
                 avg_rating = rating_data.get("average_rating", 0)
                 rating_count = rating_data.get("total_ratings", 0)
@@ -196,7 +245,7 @@ class Services:
                 avg_rating = 0
                 rating_count = 0
             try:
-                comments_res = requests.get(f"{COLLAB_BASE_URL}/projects/{project_id}/comments")
+                comments_res = requests.get(f"{COLLAB_API_URL}/projects/{project_id}/comments")
                 comments_data = comments_res.json()
                 comments_count = len(comments_data.get("comments", []))
             except requests.RequestException:

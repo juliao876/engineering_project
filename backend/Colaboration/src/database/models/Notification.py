@@ -1,6 +1,6 @@
-from sqlmodel import SQLModel, Field
 from typing import Optional
 from datetime import datetime
+from sqlmodel import SQLModel, Field
 
 class Notification(SQLModel, table=True):
     __tablename__ = "notifications"
@@ -12,6 +12,9 @@ class Notification(SQLModel, table=True):
     message: str = Field()
 
     project_id: Optional[int] = Field(default=None)
+    actor_id: Optional[int] = Field(default=None)
+    actor_username: Optional[str] = Field(default=None)
 
     is_read: bool = Field(default=False)
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    read_at: Optional[datetime] = Field(default=None, nullable=True)

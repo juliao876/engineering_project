@@ -96,6 +96,33 @@ class Services:
         except Exception:
             return None
 
+    def _notify_user(
+        self,
+        user_id: int,
+        notification_type: str,
+        message: str,
+        project_id: int | None = None,
+        actor_id: int | None = None,
+        actor_username: str | None = None,
+    ):
+        if not user_id:
+            return None
+
+        notification = Notification(
+            user_id=user_id,
+            type=notification_type,
+            message=message,
+            project_id=project_id,
+            actor_id=actor_id,
+            actor_username=actor_username,
+        )
+
+        self.db.add(notification)
+        self.db.commit()
+        self.db.refresh(notification)
+
+        return notification
+
     def _notify_project_owner_about_rating(self, project_id: int, rater_id: int, value: int):
         project = self._fetch_project_owner(project_id)
         if not project:
@@ -105,17 +132,18 @@ class Services:
         if not owner_id or owner_id == rater_id:
             return
 
+        profile = self._fetch_user_profile(rater_id)
+        rater_username = profile.get("username") or profile.get("name")
         message = f"Your project '{project.get('title', 'project')}' received a {value}/5 rating"
 
-        notification = Notification(
-            user_id=owner_id,
-            type="rating",
-            message=message,
+        self._notify_user(
+            owner_id,
+            "rating",
+            message,
             project_id=project_id,
+            actor_id=rater_id,
+            actor_username=rater_username,
         )
-
-        self.db.add(notification)
-        self.db.commit()
 
     def _fetch_user_profile(self, user_id: int) -> dict:
         try:
@@ -160,6 +188,8 @@ class Services:
 
         profile = user_profile or self._fetch_user_profile(user_id)
 
+        self._notify_project_owner_about_comment(project_id, user_id, profile)
+
         return self._serialize_comment(new_comment, {user_id: profile})
 
     def reply_to_comment(self, comment_id: int, user_id: int, data: ReplySchema, user_profile: dict | None = None):
@@ -180,6 +210,17 @@ class Services:
         self.db.refresh(reply)
 
         profile = user_profile or self._fetch_user_profile(user_id)
+
+        if parent.user_id != user_id:
+            author = profile.get("username") or profile.get("name") or "Ktoś"
+            self._notify_user(
+                parent.user_id,
+                "reply",
+                f"{author} replied to your comment",
+                project_id=parent.project_id,
+                actor_id=user_id,
+                actor_username=profile.get("username") or profile.get("name"),
+            )
 
         return self._serialize_comment(reply, {user_id: profile})
 
@@ -217,7 +258,21 @@ class Services:
             .all()
         )
 
-        return notifications
+        return [
+            NotificationSchema(
+                id=n.id,
+                user_id=n.user_id,
+                type=n.type,
+                message=n.message,
+                is_read=n.is_read,
+                created_at=n.created_at,
+                read_at=n.read_at,
+                project_id=n.project_id,
+                actor_id=n.actor_id,
+                actor_username=n.actor_username,
+            )
+            for n in notifications
+        ]
 
     def mark_notification_as_read(self, notification_id: int, user_id: int):
         notification = (
@@ -235,4 +290,86 @@ class Services:
         self.db.commit()
         self.db.refresh(notification)
 
-        return {"message": "Notification marked as read"}
+        return NotificationSchema(
+            id=notification.id,
+            user_id=notification.user_id,
+            type=notification.type,
+            message=notification.message,
+            is_read=notification.is_read,
+            created_at=notification.created_at,
+            read_at=notification.read_at,
+            project_id=notification.project_id,
+            actor_id=notification.actor_id,
+            actor_username=notification.actor_username,
+        )
+
+    def delete_notification(self, notification_id: int, user_id: int):
+        notification = (
+            self.db.query(Notification)
+            .filter(Notification.id == notification_id, Notification.user_id == user_id)
+            .first()
+        )
+
+        if not notification:
+            raise HTTPException(status_code=404, detail="Notification not found")
+
+        self.db.delete(notification)
+        self.db.commit()
+
+        return {"message": "Notification deleted"}
+
+    def create_notification(
+        self,
+        user_id: int,
+        notification_type: str,
+        message: str,
+        project_id: int | None = None,
+        actor_id: int | None = None,
+        actor_username: str | None = None,
+    ):
+        notification = self._notify_user(
+            user_id=user_id,
+            notification_type=notification_type,
+            message=message,
+            project_id=project_id,
+            actor_id=actor_id,
+            actor_username=actor_username,
+        )
+
+        if not notification:
+            raise HTTPException(status_code=400, detail="Unable to create notification")
+
+        return NotificationSchema(
+            id=notification.id,
+            user_id=notification.user_id,
+            type=notification.type,
+            message=notification.message,
+            is_read=notification.is_read,
+            created_at=notification.created_at,
+            read_at=notification.read_at,
+            project_id=notification.project_id,
+            actor_id=notification.actor_id,
+            actor_username=notification.actor_username,
+        )
+
+    def _notify_project_owner_about_comment(self, project_id: int, commenter_id: int, profile: dict):
+        project = self._fetch_project_owner(project_id)
+        if not project:
+            return
+
+        owner_id = project.get("user_id")
+        if not owner_id or owner_id == commenter_id:
+            return
+
+        author = profile.get("username") or profile.get("name") or "Ktoś"
+        title = project.get("title", "project")
+        message = f"{author} commented on your project '{title}'"
+
+        self._notify_user(
+            owner_id,
+            "comment",
+            message,
+            project_id=project_id,
+            actor_id=commenter_id,
+            actor_username=profile.get("username") or profile.get("name"),
+        )

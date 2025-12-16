@@ -17,8 +17,12 @@ class DiscoverFollowers:
 
     @discover_followers_router.post("/users/follow")
     def follow_user(self, payload: FollowerSchema, request: Request):
-
         token = request.cookies.get("token")
+        if not token:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.lower().startswith("bearer "):
+                token = auth_header.split(" ", 1)[1]
+
         if not token:
             raise HTTPException(status_code=401, detail="Not authenticated")
 
@@ -26,7 +30,7 @@ class DiscoverFollowers:
         user_id = user_data.get("id") or user_data.get("user_id")
 
         service = Services(self.db)
-        result = service.follow_user(user_id, payload)
+        result = service.follow_user(user_id, payload, token=token, follower_profile=user_data)
 
         return result
 

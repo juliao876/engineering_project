@@ -13,11 +13,12 @@ import ProjectImage from "../assets/images/ProjectImage.png";
 import "../styles/CreateProjectPage.css";
 import "../styles/tokens.css";
 import Button from "../components/Button.tsx";
-import Sidebar, { SidebarItemId } from "../components/Sidebar.tsx";
+import Sidebar from "../components/Sidebar.tsx";
 import Navbar from "../components/Navbar.tsx";
 import SearchOverlay from "../components/SearchOverlay.tsx";
 import { AuthAPI, ProjectsAPI, FigmaAPI } from "../services/api.ts";
 import { loadUserSettings } from "../services/userSettings.ts";
+import useSidebarNavigation from "../hooks/useSidebarNavigation.ts";
 
 type ProjectType = "figma" | "image" | "video";
 
@@ -73,27 +74,9 @@ const CreateProjectPage: React.FC = () => {
     navigate("/login");
   };
 
-  const handleSidebarSelect = (itemId: SidebarItemId) => {
-    switch (itemId) {
-      case "profile":
-        navigate("/profile");
-        break;
-      case "create":
-        navigate("/projects/create");
-        break;
-      case "home":
-        navigate("/");
-        break;
-      case "search":
-        setIsSearchOpen(true);
-        break;
-      case "settings":
-        navigate("/settings");
-        break;
-      default:
-        break;
-    }
-  };
+  const handleSidebarSelect = useSidebarNavigation({
+    openSearch: () => setIsSearchOpen(true),
+  });
 
   useEffect(() => {
     setShowTypeModal(location.state?.openTypeModal ?? true);

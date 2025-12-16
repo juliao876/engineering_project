@@ -142,6 +142,11 @@ export const ProjectsAPI = {
       method: "GET",
     }),
 
+  getAllPublicProjects: () =>
+    request(PROJECTS_BASE_URL, "/project/public", {
+      method: "GET",
+    }),
+
   deleteProject: (projectId: number) =>
     request(PROJECTS_BASE_URL, `/project/delete_project/${projectId}`, {
       method: "DELETE",
@@ -290,6 +295,27 @@ export const FollowAPI = {
       method: "GET",
     }),
 }
+
+// ======================
+//  NOTIFICATIONS API
+// ======================
+
+export const NotificationsAPI = {
+  getNotifications: () =>
+    request(COLLAB_BASE_URL, "/collab/notifications", {
+      method: "GET",
+    }),
+
+  markNotificationRead: (notificationId: number) =>
+    request(COLLAB_BASE_URL, `/collab/notifications/read/${notificationId}`, {
+      method: "POST",
+    }),
+
+  deleteNotification: (notificationId: number) =>
+    request(COLLAB_BASE_URL, `/collab/notifications/${notificationId}`, {
+      method: "DELETE",
+    }),
+};
 
 
 export default request;

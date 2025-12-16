@@ -5,7 +5,7 @@ import "../styles/UserProfilePage.css";
 
 import Navbar from "../components/Navbar.tsx";
 import SearchOverlay from "../components/SearchOverlay.tsx";
-import Sidebar, { SidebarItemId } from "../components/Sidebar.tsx";
+import Sidebar from "../components/Sidebar.tsx";
 import Button from "../components/Button.tsx";
 import ProjectCard from "../components/ProjectCard.tsx";
 
@@ -13,6 +13,7 @@ import ProfileImage from "../assets/images/Profile.png";
 
 import { AuthAPI, CollabAPI, ProjectsAPI, FollowAPI } from "../services/api.ts";
 import Rating from "../components/Rating.tsx";
+import useSidebarNavigation from "../hooks/useSidebarNavigation.ts";
 
 type CommentItem = {
   id: number;
@@ -45,6 +46,10 @@ const UserProfilePage: React.FC = () => {
   const [commentText, setCommentText] = useState("");
   const [replyTexts, setReplyTexts] = useState<Record<number, string>>({});
   const [isCommentsLoading, setIsCommentsLoading] = useState(false);
+
+  const handleSidebarSelect = useSidebarNavigation({
+    openSearch: () => setIsSearchOpen(true),
+  });
 
   const closeModalWithAnimation = () => {
     setIsModalClosing(true);
@@ -223,27 +228,7 @@ const UserProfilePage: React.FC = () => {
           await AuthAPI.logout();
           navigate("/login");
         }}
-        onSelect={(itemId: SidebarItemId) => {
-          switch (itemId) {
-            case "profile":
-              navigate("/profile");
-              break;
-            case "create":
-              navigate("/projects/create");
-              break;
-            case "home":
-              navigate("/");
-              break;
-            case "search":
-              setIsSearchOpen(true);
-              break;
-            case "settings":
-              navigate("/settings");
-              break;
-            default:
-              break;
-          }
-        }}
+        onSelect={handleSidebarSelect}
       />
 
       <Navbar onMenuClick={() => setIsSidebarOpen(true)} />

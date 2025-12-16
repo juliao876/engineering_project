@@ -145,15 +145,10 @@ class Projects():
 
         return {"projects": projects_payload}
 
-    @project_router.get("/public/all")
+    @project_router.get("/public")
     def get_all_public_projects(self, db: Session = Depends(get_db)):
         service = Services(db)
-        try:
-            projects = service.list_public_projects()
-        except Exception as exc:
-            # Fail open with an empty list so dependent feeds still respond
-            print(f"[!] Failed to list public projects: {exc}")
-            projects = []
+        projects = service.list_public_projects()
         return {"projects": projects}
     @project_router.get("/details/{project_id}")
     def get_project_details(self, project_id: int, db: Session = Depends(get_db)):
