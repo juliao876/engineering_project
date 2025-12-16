@@ -13,6 +13,7 @@ export interface ProjectCardProps {
   title: string;
   description: string;
   rating?: number; // 0–5
+  ratingCount?: number;
   commentsCount?: number;
   figmaUrl?: string;
   previewUrl?: string | null;
@@ -22,6 +23,10 @@ export interface ProjectCardProps {
   isPublic?: boolean;
   onToggleVisibility?: () => void;
   onDelete?: () => void;
+  authorUsername?: string;
+  authorAvatarUrl?: string | null;
+  authorSubtitle?: string;
+  onAuthorClick?: (username?: string) => void;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
@@ -29,6 +34,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   title,
   description,
   rating = 0,
+  ratingCount,
   commentsCount = 0,
   figmaUrl,
   previewUrl,
@@ -38,8 +44,21 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   isPublic,
   onToggleVisibility,
   onDelete,
+  authorUsername,
+  authorAvatarUrl,
+  authorSubtitle,
+  onAuthorClick,
 }) => {
   const [averageRating, setAverageRating] = useState<number>(rating);
+
+  const authorInitial = (authorUsername || title || "?").charAt(0).toUpperCase();
+
+  const handleAuthorClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    if (onAuthorClick) {
+      onAuthorClick(authorUsername);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -123,6 +142,40 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <h3 className="project-card__title">{title}</h3>
           <p className="project-card__description">{description}</p>
         </div>
+
+        {(authorUsername || authorAvatarUrl) && (
+          <button
+            type="button"
+            className="project-card__author"
+            onClick={handleAuthorClick}
+            aria-label={
+              authorUsername ? `View ${authorUsername}'s profile` : "Author profile unavailable"
+            }
+            disabled={!onAuthorClick || !authorUsername}
+          >
+            {authorAvatarUrl ? (
+              <img
+                src={authorAvatarUrl}
+                alt={authorUsername ? `${authorUsername}'s avatar` : "Author avatar"}
+                className="project-card__authorAvatar"
+              />
+            ) : (
+              <span className="project-card__authorAvatar project-card__authorAvatar--initial">
+                {authorInitial}
+              </span>
+            )}
+            <span className="project-card__authorName">{authorUsername || "Unknown author"}</span>
+            {authorSubtitle && <span className="project-card__authorSubtitle">{authorSubtitle}</span>}
+          </button>
+        )}
+
+        {(ratingCount !== undefined || commentsCount !== undefined) && (
+          <div className="project-card__meta">
+            {ratingCount !== undefined && <span>{ratingCount} ratings</span>}
+            {ratingCount !== undefined && commentsCount !== undefined && <span>·</span>}
+            {commentsCount !== undefined && <span>{commentsCount} comments</span>}
+          </div>
+        )}
 
         <div className="project-card__actions">
           {onAnalyzeClick && (

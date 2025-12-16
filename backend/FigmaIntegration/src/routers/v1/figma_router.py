@@ -129,18 +129,9 @@ class Fig:
             user_id,
             project_data.get("name"),
         )
-        figma_url = f"https://www.figma.com/file/{project_data['file_key']}"
-        service.notify_projects_service(
-            user_id,
-            figma_url,
-            token,
-            figma_file,
-            project_data.get("name"),
-            project_data.get("preview_url"),
-        )
         return {
             "message": "Project imported successfully",
-            "figma_link": figma_url,
+            "figma_link": f"https://www.figma.com/file/{project_data['file_key']}",
             "preview_url": project_data.get("preview_url"),
             "project": project_data,
         }

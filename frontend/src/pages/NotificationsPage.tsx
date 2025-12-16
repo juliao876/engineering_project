@@ -127,9 +127,6 @@ const NotificationsPage: React.FC = () => {
               You will be notified when someone follows you, rates your project, or responds to your comment.
             </p>
           </div>
-          <button type="button" className="notifications-page__refresh" onClick={loadNotifications} disabled={isLoading}>
-            Refresh
-          </button>
         </header>
 
         <section className="notifications-page__list" aria-live="polite">

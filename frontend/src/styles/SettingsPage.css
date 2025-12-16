@@ -243,6 +243,22 @@
   justify-content: flex-end;
   gap: 10px;
 }
+.settings-page__figma .settings-page__sectionHeader {
+  margin-bottom: 24px;
+}
+
+.settings-page__figma .settings-page__helper {
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.settings-page__figma .settings-page__grid {
+  gap: 20px;
+}
+
+.settings-page__figma .settings-page__actions {
+  margin-top: 28px;
+}
 
 @keyframes settings-modal-overlay-in {
   from {

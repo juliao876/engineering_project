@@ -28,12 +28,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const items: { id: SidebarItemId; label: string }[] = [
     { id: 'home',          label: 'Home' },
-    { id: 'notifications', label: 'Notification' },
+    { id: 'search',        label: 'Search' },
     { id: 'profile',       label: 'Profile' },
     { id: 'create',        label: 'Create' },
-    { id: 'logout',        label: 'Log out' },
-    { id: 'search',        label: 'Search' },
+    { id: 'notifications', label: 'Notification' },
     { id: 'settings',      label: 'Settings' },
+    { id: 'logout',        label: 'Log out' },
   ];
 
   const handleClick = (itemId: SidebarItemId) => {

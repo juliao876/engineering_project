@@ -46,15 +46,14 @@ const CreateProjectPage: React.FC = () => {
   const [figmaPreviewLoading, setFigmaPreviewLoading] = useState(false);
   const [figmaImportData, setFigmaImportData] = useState<any | null>(null);
   const [lastFetchedFigmaLink, setLastFetchedFigmaLink] = useState<string>("");
-  const [figmaConnected, setFigmaConnected] = useState<boolean>(
-    () => localStorage.getItem("figma_connected") === "true"
-  );
+  const [figmaConnected, setFigmaConnected] = useState<boolean>(false);
   const [figmaStateToken, setFigmaStateToken] = useState<string | null>(
     () => localStorage.getItem("figma_oauth_state")
   );
   const [connectingFigma, setConnectingFigma] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [hasFigmaSettings, setHasFigmaSettings] = useState(false);
 
   const currentSource = useMemo(
     () => projectOptions.find((opt) => opt.key === selectedType),
@@ -90,6 +89,19 @@ const CreateProjectPage: React.FC = () => {
       setStatusMessage("Figma connected — paste a Figma file URL to import a preview.");
     }
   }, [location.search]);
+
+  useEffect(() => {
+    const userSettings = loadUserSettings();
+    const hasCredentials = Boolean(userSettings.figmaClientId && userSettings.figmaClientSecret);
+    setHasFigmaSettings(hasCredentials);
+
+    const storedConnection = localStorage.getItem("figma_connected") === "true";
+    setFigmaConnected(hasCredentials && storedConnection);
+
+    if (!hasCredentials) {
+      setStatusMessage((prev) => prev ?? "Complete your settings to connect Figma.");
+    }
+  }, []);
 
   useEffect(() => {
     if (showTypeModal) {
@@ -129,6 +141,13 @@ const CreateProjectPage: React.FC = () => {
 
   const handleStartFigmaConnect = async () => {
     const userSettings = loadUserSettings();
+    const hasCredentials = Boolean(userSettings.figmaClientId && userSettings.figmaClientSecret);
+
+    if (!hasCredentials) {
+      setStatusMessage("Complete your settings to connect Figma.");
+      return;
+    }
+
     setStatusMessage(null);
     setConnectingFigma(true);
 
@@ -165,7 +184,12 @@ const CreateProjectPage: React.FC = () => {
     if (!trimmedLink) {
       setFigmaPreview(null);
       setFigmaImportData(null);
-      setStatusMessage(null);
+      setStatusMessage(hasFigmaSettings ? null : "Complete your settings to connect Figma.");
+      return;
+    }
+
+    if (!hasFigmaSettings) {
+      setStatusMessage("Complete your settings to connect Figma.");
       return;
     }
 
@@ -197,7 +221,7 @@ const CreateProjectPage: React.FC = () => {
     }, 600);
 
     return () => clearTimeout(timeout);
-  }, [figmaLink, lastFetchedFigmaLink, selectedType, figmaConnected]);
+  }, [figmaLink, lastFetchedFigmaLink, selectedType, figmaConnected, hasFigmaSettings]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -386,7 +410,11 @@ const CreateProjectPage: React.FC = () => {
                       <span
                         className={`create-project-page__figmaStatus ${figmaConnected ? "is-connected" : "is-disconnected"}`}
                       >
-                        {figmaConnected ? "Connected" : "Not connected"}
+                        {figmaConnected
+                          ? "Connected"
+                          : hasFigmaSettings
+                          ? "Not connected"
+                          : "Finish setup in Settings"}
                       </span>
                       <button
                         type="button"
@@ -409,6 +437,11 @@ const CreateProjectPage: React.FC = () => {
                     placeholder="https://www.figma.com/file/"
                     required
                   />
+                  {!hasFigmaSettings && (
+                    <p className="create-project-page__figmaHint is-alert">
+                      Complete your Figma app credentials in Settings to connect.
+                    </p>
+                  )}
                   {figmaStateToken && (
                     <p className="create-project-page__figmaHint">State: {figmaStateToken}</p>
                   )}
@@ -499,7 +532,7 @@ const CreateProjectPage: React.FC = () => {
                     <div className="create-project-page__previewAvatar" />
                     <div className="create-project-page__previewMetaText">
                       <strong>User Name</strong>
-                      <p>Praesent facilisis mauris commodo enim.</p>
+                      <p>This is an example of a comment.</p>
                     </div>
                   </div>
                 ))}

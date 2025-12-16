@@ -130,6 +130,11 @@ export const AuthAPI = {
     request(AUTH_BASE_URL, `/auth/user/${encodeURIComponent(username)}`, {
       method: "GET",
     }),
+
+  getUserById: (userId: number) =>
+    request(AUTH_BASE_URL, `/auth/user/id/${userId}`, {
+      method: "GET",
+    }),
 };
 
 // ======================

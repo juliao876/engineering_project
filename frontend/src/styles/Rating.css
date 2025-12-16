@@ -10,13 +10,17 @@
   align-items: center;
 }
 
-.rating__starButton {
+.rating__starButton{
   border: none;
   background: transparent;
   padding: 0;
+  margin: 0;
   cursor: pointer;
   line-height: 0;
-  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .rating__starButton:focus-visible {
@@ -55,3 +59,4 @@
   font-size: 12px;
   color: #2a6f29;
 }
+

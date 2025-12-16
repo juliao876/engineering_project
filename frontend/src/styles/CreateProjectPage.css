@@ -3,7 +3,15 @@
   background: #f5f6fb;
   color: #1f2631;
   position: relative;
-  overflow-x: hidden;
+  overflow-x: visible;
+}
+
+.create-project-page .navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 }
 
 .create-project-page__header {
@@ -73,7 +81,7 @@
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
   gap: 24px;
-  margin-top: 32px; /* NEW */
+  margin-top: 64px;
 }
 
 .create-project-page__modalTitle {
@@ -570,14 +578,15 @@
 }
 
 .create-project-page__figmaConnectButton {
-  background: #2563eb;
+  background: linear-gradient(135deg, #556dff, #6b4cf6);
   color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-weight: 600;
+  border: 1px solid #4f46e5;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
 
 .create-project-page__figmaConnectButton:disabled {
@@ -587,11 +596,17 @@
 
 .create-project-page__figmaConnectButton:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 10px 22px rgba(79, 70, 229, 0.35);
+  filter: saturate(1.05);
 }
 
 .create-project-page__figmaHint {
   margin: 0;
   font-size: 12px;
   color: #9ca3af;
+}
+
+.create-project-page__figmaHint.is-alert {
+  color: #b45309;
+  font-weight: 600;
 }

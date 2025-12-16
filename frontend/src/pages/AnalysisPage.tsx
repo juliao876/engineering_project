@@ -112,10 +112,13 @@ const AnalysisPage: React.FC = () => {
     <div className="analysis-screen">
       <main className="analysis-container">
         <div className="analysis-header">
-          <Link to="/profile" className="analysis-back">
-            Back to profile
+          <Link to="/profile" style={{ textDecoration: "none" }}>
+            <Button variant="secondary" size="small">
+              ← Back to profile
+            </Button>
           </Link>
         </div>
+
         <h1 className="analysis-title">Analysis of Project "{projectTitle}"</h1>
 
         <section className="analysis-hero">

@@ -15,30 +15,63 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/ToastProvider.tsx";
 
 const RegisterPage: React.FC = () => {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const [name, setName] = useState("");
-  const [surname, setSurname] = useState("");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { addToast } = useToast();
+    const [name, setName] = useState("");
+    const [surname, setSurname] = useState("");
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const { addToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload = { name, family_name: surname, username, email, password };
+
+    const payload = {
+      name,
+      family_name: surname,
+      username,
+      email,
+      password,
+    };
+
     const res = await AuthAPI.register(payload);
 
     if (res.ok) {
-      addToast({ message: "Account created! Please log in.", type: "success" });
-      setTimeout(() => navigate("/login"), 500);
-    } else {
       addToast({
-        message: res.data?.detail || res.data?.message || "Register failed",
-        type: "error",
+        message: "Account created! Please log in.",
+        type: "success",
       });
+      setTimeout(() => navigate("/login"), 500);
+      return;
     }
+
+    // 🔴 TU JEST NOWA LOGIKA
+    const detail = res.data?.detail || res.data?.message || "";
+
+    if (typeof detail === "string") {
+      if (detail.toLowerCase().includes("username")) {
+        addToast({
+          message: "This username is already taken",
+          type: "error",
+        });
+        return;
+      }
+
+      if (detail.toLowerCase().includes("email")) {
+        addToast({
+          message: "This email is already registered",
+          type: "error",
+        });
+        return;
+      }
+    }
+    addToast({
+      message: "Registration failed. Please try again.",
+      type: "error",
+    });
   };
+
 
   return (
     <div className="register-page">

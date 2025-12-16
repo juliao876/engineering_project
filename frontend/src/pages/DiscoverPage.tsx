@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "../styles/DiscoverPage.css";
 import "../styles/tokens.css";
 
@@ -7,9 +7,7 @@ import Sidebar from "../components/Sidebar.tsx";
 import SearchOverlay from "../components/SearchOverlay.tsx";
 import Rating from "../components/Rating.tsx";
 import Button from "../components/Button.tsx";
-
-import StarEmptyIcon from "../assets/icons/StarEmpty-Icon.svg";
-import StarFullIcon from "../assets/icons/StarFull-Icon.svg";
+import ProjectCard from "../components/ProjectCard.tsx";
 
 import { AuthAPI, CollabAPI, FollowAPI, ProjectsAPI } from "../services/api.ts";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +28,7 @@ interface CommentItem {
 interface DiscoverProject {
   project_id?: number;
   id?: number;
+  user_id?: number;
   title: string;
   description?: string;
   preview_url?: string | null;
@@ -40,6 +39,14 @@ interface DiscoverProject {
   rating_count?: number;
   comments_count?: number;
   username?: string;
+  avatar_url?: string;
+  profile_photo?: string;
+  profile_picture?: string;
+  user_photo?: string;
+  name?: string;
+  family_name?: string;
+  role?: string;
+  job_title?: string;
   created_at?: string;
 }
 
@@ -58,6 +65,8 @@ const DiscoverPage: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<DiscoverProject | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isModalClosing, setIsModalClosing] = useState(false);
+
+  const fetchedAuthorProjectsRef = useRef<Set<number>>(new Set());
 
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [commentText, setCommentText] = useState("");
@@ -214,12 +223,72 @@ const DiscoverPage: React.FC = () => {
     }
   };
 
-  const renderStars = (value: number) =>
-    Array.from({ length: 5 }, (_, index) => {
-      const filled = index < Math.round(value);
-      const Icon = filled ? StarFullIcon : StarEmptyIcon;
-      return <img key={index} src={Icon} alt={filled ? "Filled star" : "Empty star"} />;
+  const projectAuthorAvatar = useCallback(
+    (project?: DiscoverProject | null) =>
+      project?.avatar_url || project?.profile_photo || project?.profile_picture || project?.user_photo,
+    [],
+  );
+
+  const fetchProjectAuthor = useCallback(
+    async (projectId?: number | null) => {
+      if (!projectId || fetchedAuthorProjectsRef.current.has(projectId)) return;
+
+      fetchedAuthorProjectsRef.current.add(projectId);
+
+      const detailsResponse = await ProjectsAPI.getProjectDetails(projectId);
+      if (!detailsResponse.ok) return;
+
+      const projectDetails = detailsResponse.data?.project ?? detailsResponse.data;
+      const ownerId: number | undefined = projectDetails?.user_id;
+
+      const userResponse = ownerId ? await AuthAPI.getUserById(ownerId) : null;
+      const userProfile = userResponse?.ok ? userResponse.data?.user ?? userResponse.data : null;
+
+      if (projectDetails || userProfile) {
+        setProjects((prev) =>
+          prev.map((item) => {
+            const itemId = item.project_id || item.id;
+            if (itemId !== projectId) return item;
+
+            return {
+              ...item,
+              user_id: item.user_id ?? ownerId,
+              username: item.username ?? userProfile?.username,
+              name: item.name ?? userProfile?.name,
+              family_name: item.family_name ?? userProfile?.family_name,
+              role: item.role ?? userProfile?.role,
+              job_title: item.job_title ?? userProfile?.role,
+            };
+          }),
+        );
+
+        setSelectedProject((prev) => {
+          if (!prev || (prev.project_id || prev.id) !== projectId) return prev;
+
+          return {
+            ...prev,
+            user_id: prev.user_id ?? ownerId,
+            username: prev.username ?? userProfile?.username,
+            name: prev.name ?? userProfile?.name,
+            family_name: prev.family_name ?? userProfile?.family_name,
+            role: prev.role ?? userProfile?.role,
+            job_title: prev.job_title ?? userProfile?.role,
+          };
+        });
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    projects.forEach((project) => {
+      const projectId = project.project_id || project.id;
+      const hasAuthor = project.username || project.name || project.family_name;
+      if (!hasAuthor) {
+        fetchProjectAuthor(projectId);
+      }
     });
+  }, [fetchProjectAuthor, projects]);
 
   return (
     <div className="discover-page">
@@ -267,42 +336,33 @@ const DiscoverPage: React.FC = () => {
           {isLoading ? (
             <p className="discover-page__empty">Loading projects...</p>
           ) : projects.length > 0 ? (
-            projects.map((project, index) => (
-              <article
-                key={project.project_id || project.id || index}
-                className="discover-card"
-                onClick={() => handleProjectClick(project)}
-              >
-                <div className="discover-card__rating">
-                  <div className="discover-card__stars">
-                    {renderStars(project.average_rating || project.rating || 0)}
-                  </div>
-                  <span className="discover-card__average">
-                    {(project.average_rating || project.rating || 0).toFixed(1)}
-                  </span>
-                </div>
+            projects.map((project, index) => {
+              const projectId = project.project_id || project.id || index;
+              const avatarUrl = projectAuthorAvatar(project);
+              const authorName =
+                [project.name, project.family_name].filter(Boolean).join(" ") || project.username || "Unknown";
+              const authorSubtitle = project.role || project.job_title || (project.username ? `@${project.username}` : "");
 
-                <div className="discover-card__media">
-                  {project.preview_url ? (
-                    <img src={project.preview_url} alt={`${project.title} preview`} />
-                  ) : (
-                    <div className="discover-card__placeholder" aria-hidden>
-                      <span />
-                    </div>
-                  )}
-                </div>
-
-                <div className="discover-card__body">
-                  <h3>{project.title}</h3>
-                  <p>{project.description || "No description provided."}</p>
-                  <div className="discover-card__counts">
-                    <span>{project.rating_count ?? 0} ratings</span>
-                    <span> · </span>
-                    <span>{project.comments_count ?? 0} comments</span>
-                  </div>
-                </div>
-              </article>
-            ))
+              return (
+                <ProjectCard
+                  key={projectId}
+                  projectId={projectId}
+                  title={project.title}
+                  description={project.description || "No description provided."}
+                  rating={project.average_rating || project.rating || 0}
+                  commentsCount={project.comments_count || 0}
+                  figmaUrl={project.figma_link}
+                  previewUrl={project.preview_url}
+                  contentType={project.contents}
+                  onPreviewClick={() => handleProjectClick(project)}
+                  authorUsername={authorName}
+                  authorAvatarUrl={avatarUrl}
+                  authorSubtitle={authorSubtitle}
+                  onAuthorClick={() => project.username && navigate(`/users/${project.username}`)}
+                  ratingCount={project.rating_count}
+                />
+              );
+            })
           ) : (
             <p className="discover-page__empty">No projects to display yet.</p>
           )}
@@ -346,11 +406,38 @@ const DiscoverPage: React.FC = () => {
 
               <div className="discover-page__modalBody">
                 <div className="discover-page__modalHeader">
-                  <div>
-                    <p className="discover-page__eyebrow">Project details</p>
-                    <h3>{selectedProject.title}</h3>
-                    <p>{selectedProject.description || "No description provided."}</p>
+                  <div className="discover-page__modalAuthor">
+                    <button
+                      type="button"
+                      className="project-card__author discover-page__modalAuthorButton"
+                      onClick={() => selectedProject.username && navigate(`/users/${selectedProject.username}`)}
+                      disabled={!selectedProject.username}
+                    >
+                      {projectAuthorAvatar(selectedProject) ? (
+                        <img
+                          src={projectAuthorAvatar(selectedProject) as string}
+                          alt={selectedProject.username ? `${selectedProject.username}'s avatar` : "Author avatar"}
+                          className="project-card__authorAvatar"
+                        />
+                      ) : (
+                        <span className="project-card__authorAvatar">
+                          {selectedProject.username?.charAt(0).toUpperCase() || "?"}
+                        </span>
+                      )}
+                      <span className="discover-page__modalAuthorText">
+                        <span className="project-card__authorName">
+                          {[selectedProject.name, selectedProject.family_name]
+                            .filter(Boolean)
+                            .join(" ") || selectedProject.username || "Unknown author"}
+                        </span>
+                        <span className="project-card__authorSubtitle">
+                          {selectedProject.role || selectedProject.job_title ||
+                            (selectedProject.username ? `@${selectedProject.username}` : "Author")}
+                        </span>
+                      </span>
+                    </button>
                   </div>
+
                   {selectedProject.figma_link && (
                     <a
                       className="button button--medium button--secondary"
@@ -361,6 +448,12 @@ const DiscoverPage: React.FC = () => {
                       See it in Figma
                     </a>
                   )}
+                </div>
+
+                <div className="discover-page__modalHeading">
+                  <p className="discover-page__eyebrow">Project details</p>
+                  <h3>{selectedProject.title}</h3>
+                  <p>{selectedProject.description || "No description provided."}</p>
                 </div>
 
                 {selectedProjectId && (

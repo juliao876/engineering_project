@@ -56,58 +56,6 @@
   gap: 16px;
 }
 
-.discover-card {
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 16px;
-  padding: 11px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(6px);
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.discover-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
-}
-
-.discover-card__rating {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.discover-card__stars {
-  display: flex;
-  gap: 4px;
-  line-height: 0;
-}
-
-.discover-card__average {
-  font-weight: 700;
-  color: #111827;
-}
-
-.discover-card__media {
-  width: 100%;
-  background: #f3f4f6;
-  border-radius: 14px;
-  overflow: hidden;
-  aspect-ratio: 5 / 3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.discover-card__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 .discover-card__placeholder {
   width: 100%;
   height: 100%;
@@ -128,44 +76,6 @@
   height: 48px;
   border: 3px solid rgba(0, 0, 0, 0.12);
   border-radius: 8px;
-}
-
-.discover-card__body h3 {
-  margin: 0 0 6px;
-  font-size: 18px;
-}
-
-.discover-card__body p {
-  margin: 0 0 10px;
-  color: #4b5563;
-  line-height: 1.6;
-}
-
-.discover-card__meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.discover-card__authorAvatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #e5e7eb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  color: #4b5563;
-}
-
-.discover-card__author {
-  font-weight: 600;
-}
-
-.discover-card__counts {
-  font-size: 14px;
-  color: #6b7280;
 }
 
 .discover-page__empty {
@@ -250,7 +160,7 @@
 
 .discover-page__modalHeader {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
@@ -262,6 +172,43 @@
 .discover-page__modalHeader p {
   margin: 0;
   color: #4b5563;
+}
+
+.discover-page__modalHeading {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.discover-page__modalAuthor {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.discover-page__modalAuthorButton {
+  width: auto;
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+}
+
+.discover-page__modalAuthorButton .project-card__authorAvatar {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+}
+
+.discover-page__modalAuthorButton:hover:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+}
+
+.discover-page__modalAuthorText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .discover-page__rating {
