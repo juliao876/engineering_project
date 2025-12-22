@@ -21,12 +21,12 @@ class Services:
     #                RUN ANALYSIS ENTRYPOINT
     # ======================================================
     def run_analysis(
-        self,
-        project_id: int,
-        device: str,
-        figma_data: dict = None,
-        token: str = None,
-        figma_url: str = None,
+            self,
+            project_id: int,
+            device: str,
+            figma_data: dict = None,
+            token: str = None,
+            figma_url: str = None,
     ):
 
         resolved_figma_url = figma_url
@@ -281,7 +281,8 @@ class Services:
                 if min_spacing is None or gap < min_spacing:
                     min_spacing = gap
                     # take stricter priority among the two buttons being compared
-                    priorities = sorted({button_boxes[i][1], button_boxes[j][1]}, key=lambda p: ["high", "medium", "low"].index(p))
+                    priorities = sorted({button_boxes[i][1], button_boxes[j][1]},
+                                        key=lambda p: ["high", "medium", "low"].index(p))
                     spacing_priority = priorities[0] if priorities else None
 
         if spacing_priority:
@@ -337,53 +338,85 @@ class Services:
         def luminance(rgb):
             def f(c):
                 c = c / 255
-                return c / 12.92 if c <= 0.03928 else ((c + 0.055)/1.055)**2.4
+                return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
 
             r, g, b = rgb
-            return 0.2126*f(r) + 0.7152*f(g) + 0.0722*f(b)
+            return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
 
-        def contrast(fg, bg):
+        def contrast_ratio(fg, bg):
             L1 = luminance(fg)
             L2 = luminance(bg)
             return (max(L1, L2) + 0.05) / (min(L1, L2) + 0.05)
 
-        lowest_contrast = None
+        def figma_color_to_rgb(color, opacity=1.0):
+            return [
+                int(color["r"] * 255 * opacity),
+                int(color["g"] * 255 * opacity),
+                int(color["b"] * 255 * opacity),
+            ]
+
+        # build parent map once
+        parent_map = {}
         for node in all_nodes:
-            fills = node.get("fills")
-            if fills and isinstance(fills, list):
-                col = fills[0].get("color")
-                if col:
-                    fg = [int(col["r"] * 255), int(col["g"] * 255), int(col["b"] * 255)]
-                    bg = [255, 255, 255]
-                    r = contrast(fg, bg)
+            for child in node.get("children", []):
+                parent_map[child.get("id")] = node
 
-                    if lowest_contrast is None or r < lowest_contrast:
-                        lowest_contrast = r
+        def find_background_color(node):
+            current = parent_map.get(node.get("id"))
+            while current:
+                fills = current.get("fills", [])
+                if fills and fills[0].get("type") == "SOLID":
+                    color = fills[0].get("color")
+                    opacity = fills[0].get("opacity", 1)
+                    if color:
+                        return figma_color_to_rgb(color, opacity)
+                current = parent_map.get(current.get("id"))
+            return [255, 255, 255]  # fallback: white canvas
 
-                    if r < CONTRAST["large"]:
-                        issues.append(
-                            {
-                                "issue": "Contrast below large text requirement",
-                                "actual_ratio": round(r, 2),
-                                "required_ratio": CONTRAST["large"],
-                                "node": node.get("id"),
-                            }
-                        )
-                    elif r < CONTRAST["normal"]:
-                        issues.append(
-                            {
-                                "issue": "Contrast below normal text requirement",
-                                "actual_ratio": round(r, 2),
-                                "required_ratio": CONTRAST["normal"],
-                                "node": node.get("id"),
-                            }
-                        )
+        lowest_contrast = None
 
-        metrics["contrast_ratio"]["min_ratio"] = lowest_contrast
-        if lowest_contrast and lowest_contrast < CONTRAST["large"]:
-            metrics["contrast_ratio"]["status"] = "error"
-        elif lowest_contrast and lowest_contrast < CONTRAST["normal"]:
-            metrics["contrast_ratio"]["status"] = "warning"
+        for node in all_nodes:
+            if node.get("type") != "TEXT":
+                continue
+
+            fills = node.get("fills", [])
+            if not fills or fills[0].get("type") != "SOLID":
+                continue
+
+            text_color = fills[0].get("color")
+            if not text_color:
+                continue
+
+            text_opacity = fills[0].get("opacity", 1)
+            fg = figma_color_to_rgb(text_color, text_opacity)
+            bg = find_background_color(node)
+
+            ratio = contrast_ratio(fg, bg)
+
+            if lowest_contrast is None or ratio < lowest_contrast:
+                lowest_contrast = ratio
+
+            font_size = node.get("style", {}).get("fontSize", 0)
+            required = CONTRAST["large"] if font_size >= 18 else CONTRAST["normal"]
+
+            if ratio < required:
+                issues.append(
+                    {
+                        "issue": "Text contrast too low",
+                        "actual_ratio": round(ratio, 2),
+                        "required_ratio": required,
+                        "font_size": font_size,
+                        "node": node.get("id"),
+                    }
+                )
+
+        metrics["contrast_ratio"]["min_ratio"] = round(lowest_contrast, 2) if lowest_contrast else None
+
+        if lowest_contrast is not None:
+            if lowest_contrast < CONTRAST["large"]:
+                metrics["contrast_ratio"]["status"] = "error"
+            elif lowest_contrast < CONTRAST["normal"]:
+                metrics["contrast_ratio"]["status"] = "warning"
 
         # -------- TOUCH (mobile) --------
         if device == "mobile":

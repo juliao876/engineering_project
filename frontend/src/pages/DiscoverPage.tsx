@@ -102,6 +102,7 @@ const DiscoverPage: React.FC = () => {
 
   const loadProjects = useCallback(
     async (tab: FeedTab) => {
+      fetchedAuthorProjectsRef.current.clear();
       setIsLoading(true);
       try {
         const response =

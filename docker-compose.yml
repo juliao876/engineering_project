@@ -7,8 +7,6 @@ services:
       - "6700:6700"
     env_file:
       - ./backend/AuthUsers/.env
-    volumes:
-      - auth_uploads:/app/src/uploads
 
   auth-db:
     image: postgres:16
@@ -124,7 +122,6 @@ services:
       - analysis_pgdata:/var/lib/postgresql/data
 volumes:
   auth_pgdata:
-  auth_uploads:
   projects_pgdata:
   figma_pgdata:
   project_uploads:

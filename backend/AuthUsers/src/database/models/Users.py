@@ -2,6 +2,7 @@ from sqlmodel import Field, Column, JSON
 from typing import Optional
 from .BaseSQL import BaseSQL
 
+
 class Users(BaseSQL, table=True):
     __tablename__ = "users"
 
@@ -13,3 +14,7 @@ class Users(BaseSQL, table=True):
     email: str = Field(unique=True, nullable=False, index=True)
     # projects: list[int] = Field(default=None, sa_column=Column(JSON))
     role: str = Field(default="User", nullable=False)
+    bio: Optional[str] = Field(default=None, nullable=True)
+    figma_client_id: Optional[str] = Field(default=None, nullable=True)
+    figma_client_secret: Optional[str] = Field(default=None, nullable=True)
+    avatar_url: Optional[str] = Field(default=None, nullable=True)
