@@ -44,6 +44,8 @@ const SettingsPage: React.FC = () => {
   const [figmaClientId, setFigmaClientId] = useState("");
   const [figmaClientSecret, setFigmaClientSecret] = useState("");
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
+  const [showFigmaHelpModal, setShowFigmaHelpModal] = useState(false);
+  const [isFigmaHelpClosing, setIsFigmaHelpClosing] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -207,6 +209,18 @@ const SettingsPage: React.FC = () => {
     }, 320);
   };
 
+  const openFigmaHelpModal = () => {
+    setShowFigmaHelpModal(true);
+  };
+
+  const closeFigmaHelpModal = () => {
+    setIsFigmaHelpClosing(true);
+    setTimeout(() => {
+      setShowFigmaHelpModal(false);
+      setIsFigmaHelpClosing(false);
+    }, 320);
+  };
+
   return (
     <div className="settings-page">
       <Sidebar
@@ -340,7 +354,7 @@ const SettingsPage: React.FC = () => {
           </div>
 
           <div className="settings-page__actions">
-            <Button variant="primary" size="medium" onClick={() => {}}>
+            <Button variant="primary" size="medium" onClick={openFigmaHelpModal}>
               Let us help
             </Button>
           </div>
@@ -406,6 +420,61 @@ const SettingsPage: React.FC = () => {
             </div>
           </div>
         )}
+        {showFigmaHelpModal && (
+          <div
+            className={`settings-page__modalOverlay ${isFigmaHelpClosing ? "is-closing" : ""}`}
+            onClick={closeFigmaHelpModal}
+          >
+            <div
+              className={`settings-page__modalCard ${isFigmaHelpClosing ? "is-exit" : "is-open"}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button className="settings-page__modalClose" onClick={closeFigmaHelpModal}>
+                ×
+              </button>
+
+              <h3 className="settings-page__modalTitle">
+                How to get Figma credentials
+              </h3>
+
+              <p className="settings-page__modalSubtitle">
+                Follow these steps to create your own Figma OAuth app.
+              </p>
+
+              <ol className="settings-page__figmaSteps">
+                <li>
+                  Go to{" "}
+                  <a href="https://www.figma.com/developers/apps" target="_blank" rel="noreferrer">
+                    figma.com/developers/apps
+                  </a>
+                </li>
+                <li>Click <strong>Create a new app</strong>.</li>
+                <li>Set app name to <strong>Uinside analyzer</strong>.</li>
+                <li>
+                  Callback URL:
+                  <br />
+                  <a
+                    href="http://localhost:3000/figma/callback"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="settings-page__callbackLink"
+                  >
+                    http://localhost:3000/figma/callback
+                  </a>
+                </li>
+                <li>Copy Client ID and Client Secret.</li>
+                <li><strong>Important:</strong> Client Secret is shown only once.</li>
+              </ol>
+
+              <div className="settings-page__modalActions">
+                <Button variant="primary" size="medium" onClick={closeFigmaHelpModal}>
+                  Got it
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </main>
     </div>
   );
