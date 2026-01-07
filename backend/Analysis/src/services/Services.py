@@ -155,6 +155,66 @@ class Services:
 
         return figma_link
 
+    def figma_color_to_rgb(self, color: dict):
+        return [
+            int(color["r"] * 255),
+            int(color["g"] * 255),
+            int(color["b"] * 255),
+        ]
+
+    def is_large_text(self, node: dict):
+        style = node.get("style", {})
+        font_size = style.get("fontSize", 0)
+        font_weight = style.get("fontWeight", 400)
+        return font_size >= 18 or (font_size >= 14 and font_weight >= 700)
+
+    def find_background_color(self, node: dict):
+        parent = node.get("parent")
+
+        while parent:
+            fills = parent.get("fills", [])
+
+            for f in fills:
+                color = f.get("color")
+                if not color:
+                    continue
+                if color.get("a", 1) == 0:
+                    continue
+
+                return self.figma_color_to_rgb(color)
+
+            bg = parent.get("backgroundColor")
+            if bg and bg.get("a", 1) > 0:
+                return self.figma_color_to_rgb(bg)
+
+            parent = parent.get("parent")
+
+        return [255, 255, 255]
+
+    def is_button(self, node: dict):
+        if node.get("type") not in ["GROUP", "FRAME"]:
+            return False
+
+        children = node.get("children", [])
+        if not children:
+            return False
+
+        rect = next(
+            (c for c in children if c.get("type") == "RECTANGLE" and c.get("absoluteBoundingBox")),
+            None
+        )
+        if not rect:
+            return False
+
+        has_text = any(c.get("type") == "TEXT" for c in children)
+        has_icon = any(c.get("type") in ["VECTOR", "ELLIPSE"] for c in children)
+
+        if not (has_text or has_icon):
+            return False
+
+        box = rect["absoluteBoundingBox"]
+        return box["width"] >= 24 and box["height"] >= 24
+
     # ======================================================
     #            FIGMA DATA ANALYSIS CORE ENGINE
     # ======================================================
@@ -231,33 +291,40 @@ class Services:
         button_boxes = []
         # -------- BUTTONS --------
         for node in all_nodes:
+            if not self.is_button(node):
+                continue
+
+            rect = next(
+                c for c in node["children"]
+                if c.get("type") == "RECTANGLE" and c.get("absoluteBoundingBox")
+            )
+
+            box = rect["absoluteBoundingBox"]
+            h = box["height"]
+
             node_name = node.get("name", "")
-            if "button" in node_name.lower() or node.get("type") in ["RECTANGLE", "FRAME"]:
-                box = node.get("absoluteBoundingBox")
-                if box and box.get("height") and box.get("width"):
-                    priority = classify_priority(node_name)
-                    h = box.get("height")
-                    button_boxes.append((box, priority, node))
+            priority = classify_priority(node_name)
+            button_boxes.append((box, priority, node))
 
-                    breakdown = metrics["button_size"]["priority_breakdown"].setdefault(
-                        priority, {"min_detected": None, "expected_min": BUTTON_THRESHOLDS[priority]}
-                    )
+            breakdown = metrics["button_size"]["priority_breakdown"].setdefault(
+                priority, {"min_detected": None, "expected_min": BUTTON_THRESHOLDS[priority]}
+            )
 
-                    if breakdown["min_detected"] is None or h < breakdown["min_detected"]:
-                        breakdown["min_detected"] = h
+            if breakdown["min_detected"] is None or h < breakdown["min_detected"]:
+                breakdown["min_detected"] = h
 
-                    if metrics["button_size"]["min_detected"] is None or h < metrics["button_size"]["min_detected"]:
-                        metrics["button_size"]["min_detected"] = h
+            if metrics["button_size"]["min_detected"] is None or h < metrics["button_size"]["min_detected"]:
+                 metrics["button_size"]["min_detected"] = h
 
-                    if h < BUTTON_THRESHOLDS[priority]:
-                        issues.append(
-                            {
-                                "issue": f"{priority.title()} priority button height too small",
-                                "expected_min": BUTTON_THRESHOLDS[priority],
-                                "actual": h,
-                                "node": node.get("id"),
-                            }
-                        )
+            if h < BUTTON_THRESHOLDS[priority]:
+                issues.append(
+                    {
+                        "issue": f"{priority.title()} priority button height too small",
+                        "expected_min": BUTTON_THRESHOLDS[priority],
+                        "actual": h,
+                        "node": node.get("id"),
+                    }
+                )
 
         # Determine button spacing between detected buttons
         def _distance(box_a, box_b):
@@ -337,60 +404,71 @@ class Services:
         def luminance(rgb):
             def f(c):
                 c = c / 255
-                return c / 12.92 if c <= 0.03928 else ((c + 0.055)/1.055)**2.4
+                return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
 
             r, g, b = rgb
-            return 0.2126*f(r) + 0.7152*f(g) + 0.0722*f(b)
+            return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
 
-        def contrast(fg, bg):
+        def contrast_ratio(fg, bg):
             L1 = luminance(fg)
             L2 = luminance(bg)
             return (max(L1, L2) + 0.05) / (min(L1, L2) + 0.05)
 
         lowest_contrast = None
+
         for node in all_nodes:
+            if node.get("type") != "TEXT":
+                continue
+
             fills = node.get("fills")
-            if fills and isinstance(fills, list):
-                col = fills[0].get("color")
-                if col:
-                    fg = [int(col["r"] * 255), int(col["g"] * 255), int(col["b"] * 255)]
-                    bg = [255, 255, 255]
-                    r = contrast(fg, bg)
+            if not fills or not isinstance(fills, list):
+                continue
 
-                    if lowest_contrast is None or r < lowest_contrast:
-                        lowest_contrast = r
+            fill = next((f for f in fills if f.get("visible", True) and f.get("color")), None)
+            if not fill:
+                continue
 
-                    if r < CONTRAST["large"]:
-                        issues.append(
-                            {
-                                "issue": "Contrast below large text requirement",
-                                "actual_ratio": round(r, 2),
-                                "required_ratio": CONTRAST["large"],
-                                "node": node.get("id"),
-                            }
-                        )
-                    elif r < CONTRAST["normal"]:
-                        issues.append(
-                            {
-                                "issue": "Contrast below normal text requirement",
-                                "actual_ratio": round(r, 2),
-                                "required_ratio": CONTRAST["normal"],
-                                "node": node.get("id"),
-                            }
-                        )
+            fg = self.figma_color_to_rgb(fill["color"])
+            bg = self.find_background_color(node)
+            if fg == bg:
+                continue
+            ratio = contrast_ratio(fg, bg)
 
-        metrics["contrast_ratio"]["min_ratio"] = lowest_contrast
-        if lowest_contrast and lowest_contrast < CONTRAST["large"]:
-            metrics["contrast_ratio"]["status"] = "error"
-        elif lowest_contrast and lowest_contrast < CONTRAST["normal"]:
-            metrics["contrast_ratio"]["status"] = "warning"
+            if lowest_contrast is None or ratio < lowest_contrast:
+                lowest_contrast = ratio
+
+            is_large = self.is_large_text(node)
+            required = CONTRAST["large"] if is_large else CONTRAST["normal"]
+
+            if ratio < required:
+                text_sample = (node.get("characters") or "").strip()[:20]
+
+                issues.append(
+                    {
+                        "issue": "Insufficient contrast",
+                        "actual_ratio": round(ratio, 2),
+                        "required_ratio": required,
+                        "text_sample": text_sample,
+                        "node": node.get("id"),
+                    }
+                )
+
+        metrics["contrast_ratio"]["min_ratio"] = round(lowest_contrast, 2) if lowest_contrast else None
+
+        if lowest_contrast:
+            if lowest_contrast < CONTRAST["large"]:
+                metrics["contrast_ratio"]["status"] = "error"
+            elif lowest_contrast < CONTRAST["normal"]:
+                metrics["contrast_ratio"]["status"] = "warning"
+            else:
+                metrics["contrast_ratio"]["status"] = "ok"
 
         # -------- TOUCH (mobile) --------
         if device == "mobile":
             smallest_touch = None
             smallest_text_touch = None
             for node in all_nodes:
-                box = node.get("absoluteBoundingBox")
+                box = rect["absoluteBoundingBox"]
                 if box:
                     w, h = box.get("width"), box.get("height")
                     if w and h:
@@ -457,32 +535,56 @@ class Services:
         issues = data["issues"]
         count = len(issues)
 
-        summary = f"Found {count} UX issues across spacing, readability, and controls."
+        summary = f"Detected {count} usability and accessibility issues."
+
         if count == 0:
-            opinion = "Great job! The design meets the key accessibility guidelines."
+            opinion = "Excellent accessibility and layout quality."
         elif count < 3:
-            opinion = "Overall layout is acceptable with minor adjustments recommended."
+            opinion = "Minor UX issues detected. Small improvements recommended."
         else:
-            opinion = "The project needs UX improvements to meet the provided guidelines."
+            opinion = "Multiple UX and accessibility issues detected. Improvements required."
 
         recommendations = []
+
         for i in issues:
-            t = i["issue"].lower()
-            if "button" in t:
-                recommendations.append("Increase button height.")
-            if "font" in t:
-                recommendations.append("Increase font size for readability.")
-            if "contrast" in t:
-                recommendations.append("Improve color contrast to meet WCAG AA.")
-            if "nest" in t:
-                recommendations.append("Reduce layout depth for better hierarchy.")
-            if "touch" in t:
-                recommendations.append("Increase touch target sizes on mobile.")
+            issue_type = i["issue"].lower()
+
+            if "font" in issue_type:
+                recommendations.append(
+                    f"Increase font size to at least {i.get('expected_min')}px "
+                    f"(currently {i.get('actual')}px)."
+                )
+
+            if "contrast" in issue_type:
+                text = i.get("text_sample", "")
+                recommendations.append(
+                    f"Improve color contrast to ≥ {i.get('required_ratio')}:1 "
+                    f"for text \"{text}\"."
+                )
+
+            if "button" in issue_type:
+                recommendations.append(
+                    f"Increase button height to at least {i.get('expected_min')}px "
+                    f"(currently {i.get('actual')}px)."
+                )
+
+            if "touch" in issue_type:
+                recommendations.append(
+                    f"Increase touch target size to minimum {i.get('expected_min')}px."
+                )
+
+            if "nest" in issue_type:
+                recommendations.append(
+                    f"Reduce layout nesting depth to ≤ {i.get('recommended_max')}."
+                )
+
+        # preserve order, remove duplicates
+        recommendations = list(dict.fromkeys(recommendations))
 
         return {
             "summary": summary,
             "opinion": opinion,
-            "recommendations": list(set(recommendations)),
+            "recommendations": recommendations,
         }
 
     # ======================================================
